@@ -64,12 +64,13 @@ class ShopifyBridgeController extends Controller
 
     /**
      * POST /api/shopify/sync-trial
-     * Terima data trial dari custom.local setelah merchant subscribe paid plan.
+     * Terima data trial + plan dari custom.local setelah merchant subscribe paid plan.
      */
     public function syncTrial(Request $request)
     {
         $request->validate([
             'shop'             => 'required|string',
+            'plan'             => 'nullable|string',
             'trial_used'       => 'required|boolean',
             'trial_started_at' => 'nullable|string',
             'trial_ends_at'    => 'nullable|string',
@@ -84,7 +85,7 @@ class ShopifyBridgeController extends Controller
             return response()->json(['ok' => true, 'note' => 'client not found']);
         }
 
-        $client->update([
+        $updateData = [
             'trial_used'       => $request->trial_used,
             'trial_started_at' => $request->trial_started_at
                 ? \Carbon\Carbon::parse($request->trial_started_at)
@@ -92,7 +93,14 @@ class ShopifyBridgeController extends Controller
             'trial_ends_at'    => $request->trial_ends_at
                 ? \Carbon\Carbon::parse($request->trial_ends_at)
                 : null,
-        ]);
+        ];
+
+        // Update plan jika dikirim
+        if ($request->has('plan')) {
+            $updateData['plan'] = $request->plan;
+        }
+
+        $client->update($updateData);
 
         return response()->json(['ok' => true]);
     }
