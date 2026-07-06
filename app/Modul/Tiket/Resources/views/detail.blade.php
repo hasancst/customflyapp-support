@@ -20,9 +20,15 @@
                             'selesai' => '#10b981',
                             'ditutup' => '#64748b'
                         ][$tiket->status];
+                        $sLabel = [
+                            'terbuka' => 'OPEN',
+                            'proses' => 'IN PROGRESS',
+                            'selesai' => 'RESOLVED',
+                            'ditutup' => 'CLOSED'
+                        ][$tiket->status] ?? strtoupper($tiket->status);
                     @endphp
                     <span style="background: {{ $sColor }}15; color: {{ $sColor }}; padding: 6px 15px; border-radius: 50px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; border: 1px solid {{ $sColor }}30;">
-                        {{ $tiket->status }}
+                        {{ $sLabel }}
                     </span>
                 </div>
             </div>
@@ -84,10 +90,10 @@
         <div class="card" style="margin-top: 40px;">
             <form action="/admin/tiket/balas/{{ $tiket->id }}" method="POST">
                 @csrf
-                <h4 style="margin-bottom: 15px;">Balas Tiket</h4>
-                <textarea name="pesan" rows="5" placeholder="Tulis pesan balasan Anda di sini..." style="margin-bottom: 15px;"></textarea>
+                <h4 style="margin-bottom: 15px;">Reply Ticket</h4>
+                <textarea name="pesan" rows="5" placeholder="Write your reply here..." style="margin-bottom: 15px;"></textarea>
                 <div style="display: flex; justify-content: flex-end;">
-                    <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Kirim Balasan</button>
+                    <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Send Reply</button>
                 </div>
             </form>
         </div>
@@ -97,38 +103,39 @@
     <div>
         <!-- Sidebar Tiket -->
         <div class="card" style="position: sticky; top: 100px;">
-            <h3 style="margin-bottom: 20px; font-size: 1.1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Informasi Tiket</h3>
+            <h3 style="margin-bottom: 20px; font-size: 1.1rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Ticket Information</h3>
             
             <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Prioritas</label>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Priority</label>
                 @php
+                    $pLabel = ['rendah' => 'LOW', 'sedang' => 'MEDIUM', 'tinggi' => 'HIGH'][$tiket->prioritas] ?? strtoupper($tiket->prioritas);
                     $pColor = ['rendah' => '#10b981', 'sedang' => '#f59e0b', 'tinggi' => '#ef4444'][$tiket->prioritas];
                 @endphp
                 <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: {{ $pColor }};">
-                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> {{ strtoupper($tiket->prioritas) }}
+                    <i class="fas fa-circle" style="font-size: 0.6rem;"></i> {{ $pLabel }}
                 </div>
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Kategori</label>
-                <div style="font-weight: 600;">{{ $tiket->kategori->nama ?? 'Tanpa Kategori' }}</div>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Category</label>
+                <div style="font-weight: 600;">{{ $tiket->kategori->nama ?? 'No Category' }}</div>
             </div>
 
             <div style="margin-bottom: 30px;">
-                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Ubah Status</label>
+                <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Change Status</label>
                 <form action="/admin/tiket/status/{{ $tiket->id }}" method="POST">
                     @csrf
                     <select name="status" onchange="this.form.submit()" style="padding: 8px; font-size: 0.9rem;">
-                        <option value="terbuka" {{ $tiket->status == 'terbuka' ? 'selected' : '' }}>Terbuka</option>
-                        <option value="proses" {{ $tiket->status == 'proses' ? 'selected' : '' }}>Proses</option>
-                        <option value="selesai" {{ $tiket->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                        <option value="ditutup" {{ $tiket->status == 'ditutup' ? 'selected' : '' }}>Ditutup Permanen</option>
+                        <option value="terbuka" {{ $tiket->status == 'terbuka' ? 'selected' : '' }}>Open</option>
+                        <option value="proses" {{ $tiket->status == 'proses' ? 'selected' : '' }}>In Progress</option>
+                        <option value="selesai" {{ $tiket->status == 'selesai' ? 'selected' : '' }}>Resolved</option>
+                        <option value="ditutup" {{ $tiket->status == 'ditutup' ? 'selected' : '' }}>Closed Permanently</option>
                     </select>
                 </form>
             </div>
 
             <a href="/admin/tiket" class="btn btn-outline" style="width: 100%; border-color: #cbd5e1; color: #64748b; text-align: center;">
-                <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+                <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
     </div>
