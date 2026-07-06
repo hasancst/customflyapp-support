@@ -7,7 +7,8 @@ use App\Modul\Tiket\Http\Controllers\TiketPublikController;
 use App\Modul\Knowledgebase\Http\Controllers\KBApiController;
 
 Route::prefix('shopify')->middleware('shopify_bridge')->group(function () {
-    Route::post('/auth',     [ShopifyBridgeController::class, 'auth']);
+    Route::post('/auth',       [ShopifyBridgeController::class, 'auth']);
+    Route::post('/sync-trial', [ShopifyBridgeController::class, 'syncTrial']);
 
     // Tickets
     Route::get('/tickets',                          [TiketPublikController::class, 'index']);

@@ -61,4 +61,39 @@ class ShopifyBridgeController extends Controller
             'visitor_email' => $client->email,
         ]);
     }
+
+    /**
+     * POST /api/shopify/sync-trial
+     * Terima data trial dari custom.local setelah merchant subscribe paid plan.
+     */
+    public function syncTrial(Request $request)
+    {
+        $request->validate([
+            'shop'             => 'required|string',
+            'trial_used'       => 'required|boolean',
+            'trial_started_at' => 'nullable|string',
+            'trial_ends_at'    => 'nullable|string',
+        ]);
+
+        $client = Client::where('shop_domain', $request->shop)
+            ->orWhere('shop_id', $request->shop)
+            ->first();
+
+        if (!$client) {
+            \Log::warning('[SyncTrial] Client not found for shop: ' . $request->shop);
+            return response()->json(['ok' => true, 'note' => 'client not found']);
+        }
+
+        $client->update([
+            'trial_used'       => $request->trial_used,
+            'trial_started_at' => $request->trial_started_at
+                ? \Carbon\Carbon::parse($request->trial_started_at)
+                : null,
+            'trial_ends_at'    => $request->trial_ends_at
+                ? \Carbon\Carbon::parse($request->trial_ends_at)
+                : null,
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
 }
