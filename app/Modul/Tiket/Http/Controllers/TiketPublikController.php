@@ -121,7 +121,7 @@ class TiketPublikController extends Controller
                 'pesan_awal' => $tiket->pesan_awal,
                 'status'     => $tiket->status,
                 'prioritas'  => $tiket->prioritas,
-                'kategori'   => $tiket->kategori?->nama,
+                'kategori'   => $tiket->getRelation('kategori')?->nama ?? $tiket->getRawOriginal('kategori'),
                 'email'      => $tiket->email,
                 'nama'       => $tiket->nama,
                 'created_at' => $tiket->created_at->toISOString(),
