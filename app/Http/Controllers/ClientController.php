@@ -147,7 +147,7 @@ class ClientController extends Controller
             $secret    = config('services.shopify_bridge.secret');
             $timestamp = (string) time();
             $token     = hash_hmac('sha256', $shop . ':' . $timestamp, $secret);
-            $appUrl    = config('services.customfly_app_url', env('CUSTOMFLY_APP_URL', 'https://custom.local'));
+            $appUrl    = config('services.customfly.app_url', env('CUSTOMFLY_APP_URL', 'https://custom.local'));
 
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'X-Bridge-Shop'      => $shop,
