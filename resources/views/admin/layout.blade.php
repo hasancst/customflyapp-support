@@ -416,39 +416,39 @@
 
             @if(in_array('statistik', array_map('strtolower', $modulAktif)))
             <a href="/admin/statistik" class="nav-item {{ request()->is('admin/statistik*') ? 'active' : '' }}">
-                <i class="fas fa-chart-line"></i> Statistik
+                <i class="fas fa-chart-line"></i> Statistics
             </a>
             @endif
             @if(in_array('artikel', array_map('strtolower', $modulAktif)))
             <a href="/admin/artikel" class="nav-item {{ request()->is('admin/artikel*') ? 'active' : '' }}">
-                <i class="fas fa-file-alt"></i> Artikel
+                <i class="fas fa-file-alt"></i> Articles
             </a>
             @endif
             @if(in_array('berita', array_map('strtolower', $modulAktif)))
             <div class="nav-item-group">
                 <a href="#" class="nav-item {{ request()->is('admin/berita*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('berita-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
                     <i class="fas fa-newspaper"></i>
-                    <span style="flex: 1;">Berita</span>
+                    <span style="flex: 1;">News</span>
                     <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/berita*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
                 <div id="berita-submenu" style="display: {{ request()->is('admin/berita*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
                     <a href="/admin/berita" class="nav-item {{ request()->is('admin/berita') || request()->is('admin/berita/tambah') || request()->is('admin/berita/ubah*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-list" style="width: 18px;"></i> Semua Berita
+                        <i class="fas fa-list" style="width: 18px;"></i> All News
                     </a>
                     <a href="/admin/berita/kategori" class="nav-item {{ request()->is('admin/berita/kategori*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-folder-open" style="width: 18px;"></i> Kategori
+                        <i class="fas fa-folder-open" style="width: 18px;"></i> Categories
                     </a>
                 </div>
             </div>
             @endif
             @if(in_array('iklan', array_map('strtolower', $modulAktif)))
             <a href="/admin/iklan" class="nav-item {{ request()->is('admin/iklan*') ? 'active' : '' }}">
-                <i class="fas fa-ad"></i> Iklan
+                <i class="fas fa-ad"></i> Ads
             </a>
             @endif
             @if(in_array('video', array_map('strtolower', $modulAktif)))
             <a href="/admin/video" class="nav-item {{ request()->is('admin/video*') ? 'active' : '' }}">
-                <i class="fas fa-video"></i> Video
+                <i class="fas fa-video"></i> Videos
             </a>
             @endif
             @if(in_array('slideshow', array_map('strtolower', $modulAktif)))
@@ -458,7 +458,7 @@
             @endif
             @if(in_array('portofolio', array_map('strtolower', $modulAktif)))
             <a href="/admin/portofolio" class="nav-item {{ request()->is('admin/portofolio*') ? 'active' : '' }}">
-                <i class="fas fa-briefcase"></i> Portofolio
+                <i class="fas fa-briefcase"></i> Portfolio
             </a>
             @endif
             @if(in_array('faq', array_map('strtolower', $modulAktif)))
@@ -468,7 +468,7 @@
             @endif
             @if(in_array('layanan', array_map('strtolower', $modulAktif)))
             <a href="/admin/layanan" class="nav-item {{ request()->is('admin/layanan*') ? 'active' : '' }}">
-                <i class="fas fa-concierge-bell"></i> Layanan
+                <i class="fas fa-concierge-bell"></i> Services
             </a>
             @endif
 
@@ -484,10 +484,10 @@
                 </a>
                 <div id="kb-submenu" style="display: {{ request()->is('admin/kb*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
                     <a href="/admin/kb/article" class="nav-item {{ request()->is('admin/kb/article*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-book" style="width: 18px;"></i> Artikel
+                        <i class="fas fa-book" style="width: 18px;"></i> Articles
                     </a>
                     <a href="/admin/kb/category" class="nav-item {{ request()->is('admin/kb/category*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-folder-open" style="width: 18px;"></i> Kategori
+                        <i class="fas fa-folder-open" style="width: 18px;"></i> Categories
                     </a>
                 </div>
             </div>
@@ -497,15 +497,15 @@
             <div class="nav-item-group">
                 <a href="#" class="nav-item {{ request()->is('admin/tiket*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('tiket-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
                     <i class="fas fa-ticket-alt"></i>
-                    <span style="flex: 1;">Tiket Support</span>
+                    <span style="flex: 1;">Support Tickets</span>
                     <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/tiket*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
                 <div id="tiket-submenu" style="display: {{ request()->is('admin/tiket*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
                     <a href="/admin/tiket" class="nav-item {{ request()->is('admin/tiket') || request()->is('admin/tiket/tambah') || request()->is('admin/tiket/detail*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-list" style="width: 18px;"></i> Semua Tiket
+                        <i class="fas fa-list" style="width: 18px;"></i> All Tickets
                     </a>
                     <a href="/admin/tiket/kategori" class="nav-item {{ request()->is('admin/tiket/kategori*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-tags" style="width: 18px;"></i> Kategori
+                        <i class="fas fa-tags" style="width: 18px;"></i> Categories
                     </a>
                 </div>
             </div>
@@ -532,34 +532,34 @@
             <div class="nav-header"><i class="fas fa-cogs"></i> System Config</div>
 
             <a href="/admin/modul" class="nav-item {{ request()->is('admin/modul*') ? 'active' : '' }}">
-                <i class="fas fa-cubes"></i> Modul
+                <i class="fas fa-cubes"></i> Modules
             </a>
             @if(in_array('kontak', array_map('strtolower', $modulAktif)))
             <a href="/admin/kontak" class="nav-item {{ request()->is('admin/kontak*') ? 'active' : '' }}">
-                <i class="fas fa-envelope"></i> Pesan Kontak
+                <i class="fas fa-envelope"></i> Contact Messages
             </a>
             @endif
             @if(in_array('komentar', array_map('strtolower', $modulAktif)))
             <a href="/admin/komentar" class="nav-item {{ request()->is('admin/komentar*') ? 'active' : '' }}">
-                <i class="fas fa-comments"></i> Komentar
+                <i class="fas fa-comments"></i> Comments
             </a>
             @endif
             @if(in_array('menu', array_map('strtolower', $modulAktif)))
             <a href="/admin/menu" class="nav-item {{ request()->is('admin/menu*') ? 'active' : '' }}">
-                <i class="fas fa-list"></i> Menu
+                <i class="fas fa-list"></i> Menus
             </a>
             @endif
             <a href="/admin/tema" class="nav-item {{ request()->is('admin/tema*') ? 'active' : '' }}">
-                <i class="fas fa-palette"></i> Tema
+                <i class="fas fa-palette"></i> Themes
             </a>
             <a href="/admin/pengguna" class="nav-item {{ request()->is('admin/pengguna*') ? 'active' : '' }}">
-                <i class="fas fa-users"></i> Pengguna
+                <i class="fas fa-users"></i> Users
             </a>
             <a href="/admin/client" class="nav-item {{ request()->is('admin/client*') ? 'active' : '' }}">
-                <i class="fas fa-user-tie"></i> Client
+                <i class="fas fa-user-tie"></i> Clients
             </a>
             <a href="/admin/pengaturan" class="nav-item {{ request()->is('admin/pengaturan*') ? 'active' : '' }}">
-                <i class="fas fa-cog"></i> Pengaturan
+                <i class="fas fa-cog"></i> Settings
             </a>
         </nav>
 
@@ -567,7 +567,7 @@
             <form action="/keluar" method="POST" style="width: 100%;">
                 @csrf
                 <button type="submit" class="nav-item" style="color: #ef4444; width: 100%; border: none; background: none; text-align: left; font-family: inherit; font-size: inherit; cursor: pointer;">
-                    <i class="fas fa-sign-out-alt"></i> Keluar
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </form>
         </div>
