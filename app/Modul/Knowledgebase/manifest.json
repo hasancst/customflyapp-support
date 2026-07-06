@@ -1,0 +1,7 @@
+{
+    "nama": "Knowledge Base",
+    "slug": "knowledgebase",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk mengelola basis pengetahuan, panduan, dan dokumentasi bantuan.",
+    "provider": "App\\Modul\\Knowledgebase\\KnowledgebaseServiceProvider"
+}

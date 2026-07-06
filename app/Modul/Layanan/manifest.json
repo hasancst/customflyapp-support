@@ -1,0 +1,7 @@
+{
+    "nama": "Layanan",
+    "slug": "layanan",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk mengelola layanan perusahaan.",
+    "provider": "App\\Modul\\Layanan\\LayananServiceProvider"
+}

@@ -1,0 +1,9 @@
+{
+    "nama": "SEO Assistant",
+    "slug": "SEO",
+    "versi": "1.0.0",
+    "deskripsi": "Alat bantu optimasi SEO untuk konten Berita dan Artikel.",
+    "izin": [
+        "seo.analisis"
+    ]
+}

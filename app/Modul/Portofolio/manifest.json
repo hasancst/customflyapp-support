@@ -1,0 +1,8 @@
+{
+    "nama": "Portofolio",
+    "slug": "portofolio",
+    "deskripsi": "Modul untuk mengelola portofolio proyek atau hasil kerja.",
+    "versi": "1.0.0",
+    "penulis": "Rumah Cyber",
+    "provider": "App\\Modul\\Portofolio\\PortofolioServiceProvider"
+}

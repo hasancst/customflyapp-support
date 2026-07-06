@@ -1,0 +1,8 @@
+{
+    "nama": "FAQ",
+    "slug": "faq",
+    "deskripsi": "Modul untuk mengelola pertanyaan yang sering diajukan (FAQ).",
+    "versi": "1.0.0",
+    "penulis": "Rumah Cyber",
+    "provider": "App\\Modul\\Faq\\FaqServiceProvider"
+}

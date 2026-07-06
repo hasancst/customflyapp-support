@@ -1,0 +1,17 @@
+{
+    "nama": "Iklan",
+    "slug": "iklan",
+    "versi": "1.0.0",
+    "deskripsi": "Modul pengelolaan iklan banner dan script.",
+    "izin": [
+        "iklan.lihat",
+        "iklan.tambah",
+        "iklan.ubah",
+        "iklan.hapus"
+    ],
+    "menu": {
+        "judul": "Iklan",
+        "ikon": "ad",
+        "rute": "/admin/iklan"
+    }
+}

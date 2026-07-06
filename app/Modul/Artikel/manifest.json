@@ -1,0 +1,17 @@
+{
+    "nama": "Artikel",
+    "slug": "artikel",
+    "versi": "1.0.0",
+    "deskripsi": "Modul pengelolaan artikel edukasi dan opini.",
+    "izin": [
+        "artikel.lihat",
+        "artikel.tambah",
+        "artikel.ubah",
+        "artikel.hapus"
+    ],
+    "menu": {
+        "judul": "Artikel",
+        "ikon": "file-text",
+        "rute": "/admin/artikel"
+    }
+}

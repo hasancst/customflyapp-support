@@ -1,0 +1,9 @@
+{
+    "nama": "RC Minimalis",
+    "slug": "modern",
+    "versi": "1.0.0",
+    "mendukung": [
+        "halaman",
+        "artikel"
+    ]
+}

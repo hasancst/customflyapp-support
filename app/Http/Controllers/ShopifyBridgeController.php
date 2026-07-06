@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Client;
+use Illuminate\Http\Request;
+
+class ShopifyBridgeController extends Controller
+{
+    /**
+     * POST /api/shopify/auth
+     * Terima data customer dari Shopify App, buat/update client, return chat widget key.
+     */
+    public function auth(Request $request)
+    {
+        $request->validate([
+            'shop'        => 'required|string',
+            'email'       => 'required|email',
+            'customer_id' => 'nullable|string',
+            'first_name'  => 'nullable|string',
+            'last_name'   => 'nullable|string',
+        ]);
+
+        $client = Client::updateOrCreate(
+            ['email' => $request->email],
+            [
+                'name'        => trim(($request->first_name ?? '') . ' ' . ($request->last_name ?? '')) ?: $request->email,
+                'shop_id'     => $request->shop,
+                'shop_domain' => $request->shop,
+                'customer_id' => $request->customer_id,
+                'first_name'  => $request->first_name,
+                'last_name'   => $request->last_name,
+                'app'         => 'customfly',
+                'status'      => 'active',
+            ]
+        );
+
+        // Ambil widget key yang aktif (widget pertama)
+        $widgetKey = null;
+        $widgetClass = null;
+        // Try to find the ChatWidget model
+        $possibleClasses = [
+            \App\Modul\Chat\Model\ChatWidget::class,
+            \App\Models\ChatWidget::class,
+        ];
+        foreach ($possibleClasses as $class) {
+            if (class_exists($class)) {
+                $widgetClass = $class;
+                break;
+            }
+        }
+        if ($widgetClass) {
+            $widget = $widgetClass::where('aktif', true)->first();
+            $widgetKey = $widget?->public_key;
+        }
+
+        return response()->json([
+            'client_id'     => $client->id,
+            'widget_key'    => $widgetKey,
+            'visitor_name'  => $client->name,
+            'visitor_email' => $client->email,
+        ]);
+    }
+}

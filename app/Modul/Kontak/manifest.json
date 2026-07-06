@@ -1,0 +1,15 @@
+{
+    "nama": "Pesan Kontak",
+    "slug": "Kontak",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk menerima dan mengelola pesan dari formulir kontak pengunjung.",
+    "izin": [
+        "kontak.lihat",
+        "kontak.hapus"
+    ],
+    "menu": {
+        "judul": "Pesan Kontak",
+        "ikon": "envelope",
+        "rute": "/admin/kontak"
+    }
+}

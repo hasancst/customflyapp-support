@@ -1,0 +1,17 @@
+{
+    "nama": "Slideshow",
+    "slug": "slideshow",
+    "versi": "1.0.0",
+    "deskripsi": "Modul pengelolaan slideshow untuk halaman utama.",
+    "izin": [
+        "slideshow.lihat",
+        "slideshow.tambah",
+        "slideshow.ubah",
+        "slideshow.hapus"
+    ],
+    "menu": {
+        "judul": "Slideshow",
+        "ikon": "images",
+        "rute": "/admin/slideshow"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "nama": "Berita",
+    "slug": "berita",
+    "versi": "1.0.0",
+    "deskripsi": "Modul pengelolaan berita terkini dan pengumuman.",
+    "izin": [
+        "berita.lihat",
+        "berita.tambah",
+        "berita.ubah",
+        "berita.hapus"
+    ],
+    "menu": {
+        "judul": "Berita",
+        "ikon": "newspaper",
+        "rute": "/admin/berita"
+    }
+}

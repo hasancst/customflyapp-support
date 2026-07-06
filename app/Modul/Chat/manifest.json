@@ -1,0 +1,7 @@
+{
+    "name": "Chat Widget",
+    "slug": "Chat",
+    "version": "1.0.0",
+    "description": "AI-powered chat widget dengan integrasi Knowledge Base dan auto-escalation ke Ticketing System",
+    "provider": "App\\Modul\\Chat\\ChatServiceProvider"
+}

@@ -1,0 +1,17 @@
+{
+    "nama": "Manajemen Pengguna",
+    "slug": "Pengguna",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk mengelola akun pengguna dan hak akses.",
+    "izin": [
+        "pengguna.lihat",
+        "pengguna.tambah",
+        "pengguna.ubah",
+        "pengguna.hapus"
+    ],
+    "menu": {
+        "judul": "Pengguna",
+        "ikon": "users",
+        "rute": "/admin/pengguna"
+    }
+}

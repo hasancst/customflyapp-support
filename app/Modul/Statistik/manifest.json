@@ -1,0 +1,14 @@
+{
+    "nama": "Statistik Pengunjung",
+    "slug": "Statistik",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk melacak dan menganalisis statistik pengunjung website secara real-time.",
+    "izin": [
+        "statistik.lihat"
+    ],
+    "menu": {
+        "judul": "Statistik",
+        "ikon": "chart-line",
+        "rute": "/admin/statistik"
+    }
+}

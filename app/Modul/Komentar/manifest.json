@@ -1,0 +1,16 @@
+{
+    "nama": "Moderasi Komentar",
+    "slug": "Komentar",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk mengelola dan memoderasi komentar pada Berita dan Artikel.",
+    "izin": [
+        "komentar.lihat",
+        "komentar.moderasi",
+        "komentar.hapus"
+    ],
+    "menu": {
+        "judul": "Komentar",
+        "ikon": "comments",
+        "rute": "/admin/komentar"
+    }
+}

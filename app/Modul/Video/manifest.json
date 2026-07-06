@@ -1,0 +1,17 @@
+{
+    "nama": "Video",
+    "slug": "video",
+    "versi": "1.0.0",
+    "deskripsi": "Modul pengelolaan video Youtube.",
+    "izin": [
+        "video.lihat",
+        "video.tambah",
+        "video.ubah",
+        "video.hapus"
+    ],
+    "menu": {
+        "judul": "Video",
+        "ikon": "video",
+        "rute": "/admin/video"
+    }
+}

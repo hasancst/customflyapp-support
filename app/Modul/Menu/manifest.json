@@ -1,0 +1,17 @@
+{
+    "nama": "Manajemen Menu",
+    "slug": "Menu",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk mengelola navigasi menu pada website.",
+    "izin": [
+        "menu.lihat",
+        "menu.buat",
+        "menu.ubah",
+        "menu.hapus"
+    ],
+    "menu": {
+        "judul": "Menu",
+        "ikon": "list",
+        "rute": "/admin/menu"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "nama": "Ticketing System",
+    "slug": "tiket",
+    "versi": "1.0.0",
+    "deskripsi": "Modul untuk mengelola tiket dukungan pelanggan dan bantuan teknis.",
+    "provider": "App\\Modul\\Tiket\\TiketServiceProvider"
+}
