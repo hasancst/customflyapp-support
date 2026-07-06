@@ -15,6 +15,12 @@
         </div>
     @endif
 
+    @if(session('gagal'))
+        <div style="background: #fff5f5; color: #c53030; padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #feb2b2;">
+            {{ session('gagal') }}
+        </div>
+    @endif
+
     <!-- Filter -->
     <div style="margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
         <form action="/admin/client" method="GET" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
@@ -60,6 +66,7 @@
                     <th style="padding: 15px;">Shop ID</th>
                     <th style="padding: 15px;">App</th>
                     <th style="padding: 15px;">Plan</th>
+                    <th style="padding: 15px;">Trial</th>
                     <th style="padding: 15px;">Country</th>
                     <th style="padding: 15px;">Phone</th>
                     <th style="padding: 15px;">Join Date</th>
@@ -83,6 +90,38 @@
                         @endif
                     </td>
                     <td style="padding: 15px;">{{ $client->plan ?? '-' }}</td>
+                    <td style="padding: 15px;">
+                        @if(!$client->trial_used)
+                            <span style="background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
+                                Belum trial
+                            </span>
+                        @elseif($client->trial_ends_at && $client->trial_ends_at->isFuture())
+                            @php $sisaHari = (int) now()->diffInDays($client->trial_ends_at, false); @endphp
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
+                                    Aktif — {{ $sisaHari }} hari lagi
+                                </span>
+                                <button
+                                    onclick="bukaModalExtend({{ $client->id }}, '{{ addslashes($client->name) }}')"
+                                    style="background: #dbeafe; color: #1e40af; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"
+                                >
+                                    Extend
+                                </button>
+                            </div>
+                        @else
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">
+                                    Berakhir {{ $client->trial_ends_at ? $client->trial_ends_at->format('d M Y') : '-' }}
+                                </span>
+                                <button
+                                    onclick="bukaModalExtend({{ $client->id }}, '{{ addslashes($client->name) }}')"
+                                    style="background: #f1f5f9; color: #64748b; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"
+                                >
+                                    Extend
+                                </button>
+                            </div>
+                        @endif
+                    </td>
                     <td style="padding: 15px;">
                         @if($client->country)
                             <span class="flag-icon flag-icon-{{ strtolower($client->country) }}" style="margin-right: 5px;"></span>
@@ -124,7 +163,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10" style="padding: 50px; text-align: center; color: #94a3b8;">
+                    <td colspan="11" style="padding: 50px; text-align: center; color: #94a3b8;">
                         <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
                         Belum ada data client.
                     </td>
@@ -138,4 +177,49 @@
         {{ $clients->links() }}
     </div>
 </div>
+{{-- Modal Extend Trial --}}
+<div id="modal-extend" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);">
+        <h3 style="margin: 0 0 8px; font-size: 1.1rem;">Extend Trial</h3>
+        <p id="modal-extend-nama" style="margin: 0 0 24px; color: #64748b; font-size: 0.9rem;"></p>
+        <form id="form-extend" method="POST">
+            @csrf
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem;">Tambah berapa hari?</label>
+                <input
+                    type="number"
+                    name="days"
+                    value="7"
+                    min="1"
+                    max="365"
+                    style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 1rem; box-sizing: border-box;"
+                    required
+                />
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" onclick="tutupModalExtend()" style="padding: 10px 20px; background: #f1f5f9; color: #64748b; border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">
+                    Batal
+                </button>
+                <button type="submit" style="padding: 10px 20px; background: #6366f1; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 700;">
+                    Extend Trial
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function bukaModalExtend(clientId, clientName) {
+    document.getElementById('modal-extend-nama').textContent = 'Client: ' + clientName;
+    document.getElementById('form-extend').action = '/admin/client/' + clientId + '/extend-trial';
+    var modal = document.getElementById('modal-extend');
+    modal.style.display = 'flex';
+}
+function tutupModalExtend() {
+    document.getElementById('modal-extend').style.display = 'none';
+}
+document.getElementById('modal-extend').addEventListener('click', function(e) {
+    if (e.target === this) tutupModalExtend();
+});
+</script>
 @endsection
