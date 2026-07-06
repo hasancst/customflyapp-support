@@ -63,6 +63,20 @@ return [
             ]) : [],
         ],
 
+        // Koneksi ke database custom.local (Customfly Shopify App)
+        'customfly' => [
+            'driver'    => 'mysql',
+            'host'      => env('CUSTOMFLY_DB_HOST', '127.0.0.1'),
+            'port'      => env('CUSTOMFLY_DB_PORT', '3306'),
+            'database'  => env('CUSTOMFLY_DB_DATABASE', 'customfly'),
+            'username'  => env('CUSTOMFLY_DB_USERNAME', 'customfly'),
+            'password'  => env('CUSTOMFLY_DB_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict'    => true,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

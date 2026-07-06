@@ -116,10 +116,11 @@ class ClientController extends Controller
         $oldTrialEndsAt = $client->trial_ends_at;
 
         // Update DB lokal dulu
+        // CATATAN: trial_reminder_sent_at tidak direset sengaja — agar email reminder
+        // tidak dikirim ulang ke merchant yang baru di-extend tapi masih dalam window H-3
         $client->update([
-            'trial_used'             => true,
-            'trial_ends_at'          => $newTrialEndsAt,
-            'trial_reminder_sent_at' => null,
+            'trial_used'    => true,
+            'trial_ends_at' => $newTrialEndsAt,
         ]);
 
         // Sync ke custom.local
