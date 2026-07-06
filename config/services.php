@@ -39,4 +39,6 @@ return [
         'secret' => env('SHOPIFY_SHARED_SECRET', ''),
     ],
 
+    'customfly_app_url' => env('CUSTOMFLY_APP_URL', 'https://custom.local'),
+
 ];

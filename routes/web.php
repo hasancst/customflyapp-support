@@ -77,5 +77,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::get('/edit/{id}', [App\Http\Controllers\ClientController::class, 'edit']);
         Route::post('/update/{id}', [App\Http\Controllers\ClientController::class, 'update']);
         Route::post('/hapus/{id}', [App\Http\Controllers\ClientController::class, 'destroy']);
+        Route::post('/{id}/extend-trial', [App\Http\Controllers\ClientController::class, 'extendTrial']);
     });
 });

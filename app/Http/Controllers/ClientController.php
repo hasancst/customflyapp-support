@@ -91,4 +91,75 @@ class ClientController extends Controller
 
         return redirect('/admin/client')->with('berhasil', 'Client berhasil dihapus.');
     }
+
+    /**
+     * POST /admin/client/{id}/extend-trial
+     * Extend masa trial client. Sync ke custom.local.
+     */
+    public function extendTrial(Request $request, $id)
+    {
+        $request->validate([
+            'days' => 'required|integer|min:1|max:365',
+        ]);
+
+        $client = Client::findOrFail($id);
+        $days   = (int) $request->days;
+
+        // Hitung trial_ends_at baru
+        $base = ($client->trial_ends_at && $client->trial_ends_at->isFuture())
+            ? $client->trial_ends_at
+            : now();
+
+        $newTrialEndsAt = $base->copy()->addDays($days);
+
+        // Simpan nilai lama untuk rollback jika sync gagal
+        $oldTrialEndsAt = $client->trial_ends_at;
+
+        // Update DB lokal dulu
+        $client->update([
+            'trial_used'             => true,
+            'trial_ends_at'          => $newTrialEndsAt,
+            'trial_reminder_sent_at' => null,
+        ]);
+
+        // Sync ke custom.local
+        $shop   = $client->shop_domain ?? $client->shop_id;
+        $synced = $shop ? $this->syncExtendToCustomLocal($shop, $newTrialEndsAt) : true;
+
+        if (!$synced) {
+            // Rollback lokal kalau sync gagal
+            $client->update(['trial_ends_at' => $oldTrialEndsAt]);
+            return redirect('/admin/client')
+                ->with('gagal', 'Gagal sync extend trial ke app. Silakan coba lagi.');
+        }
+
+        return redirect('/admin/client')
+            ->with('berhasil', "Trial client {$client->name} diperpanjang {$days} hari hingga " . $newTrialEndsAt->format('d M Y') . '.');
+    }
+
+    /**
+     * Call custom.local extend-trial endpoint
+     */
+    private function syncExtendToCustomLocal(string $shop, \Carbon\Carbon $trialEndsAt): bool
+    {
+        try {
+            $secret    = config('services.shopify_bridge.secret');
+            $timestamp = (string) time();
+            $token     = hash_hmac('sha256', $shop . ':' . $timestamp, $secret);
+            $appUrl    = config('services.customfly_app_url', env('CUSTOMFLY_APP_URL', 'https://custom.local'));
+
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'X-Bridge-Shop'      => $shop,
+                'X-Bridge-Timestamp' => $timestamp,
+                'X-Bridge-Token'     => $token,
+            ])->post("{$appUrl}/api/billing/extend-trial", [
+                'trialEndsAt' => $trialEndsAt->toIso8601String(),
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            \Log::error('[ExtendTrial] Sync to custom.local failed: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
