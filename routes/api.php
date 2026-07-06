@@ -13,6 +13,8 @@ Route::prefix('shopify')->middleware('shopify_bridge')->group(function () {
     // Tickets
     Route::get('/tickets',                          [TiketPublikController::class, 'index']);
     Route::post('/tickets',                         [TiketPublikController::class, 'store']);
+    Route::get('/tickets/{id}',                     [TiketPublikController::class, 'show']);
+    Route::post('/tickets/{id}/reply',              [TiketPublikController::class, 'reply']);
     Route::get('/tickets/{id}/attachments',         [TiketUploadController::class, 'index']);
     Route::post('/tickets/{id}/attachments',        [TiketUploadController::class, 'upload']);
 
