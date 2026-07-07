@@ -5,11 +5,14 @@ use App\Modul\Chat\Http\Controllers\ChatWidgetController;
 
 // Public Chat Widget API
 Route::prefix('api/chat')->group(function () {
-    Route::post('/init', [ChatWidgetController::class, 'initSession']);
-    Route::post('/message', [ChatWidgetController::class, 'sendMessage']);
+    Route::post('/init',     [ChatWidgetController::class, 'initSession']);
+    Route::post('/resume',   [ChatWidgetController::class, 'resumeOrCreate']);
+    Route::post('/message',  [ChatWidgetController::class, 'sendMessage']);
     Route::get('/history/{sessionToken}', [ChatWidgetController::class, 'getHistory']);
+    Route::get('/poll/{sessionToken}',    [ChatWidgetController::class, 'poll']);
     Route::post('/escalate', [ChatWidgetController::class, 'escalate']);
-    Route::post('/end', [ChatWidgetController::class, 'endSession']);
+    Route::post('/close',    [ChatWidgetController::class, 'closeSession']);
+    Route::post('/end',      [ChatWidgetController::class, 'endSession']);
 });
 
 // Admin Widget Management

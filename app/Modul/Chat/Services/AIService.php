@@ -45,12 +45,11 @@ class AIService
     {
         $keywords = $this->extractKeywords($query);
         
-        $articles = KBArticle::where('published', true)
+        $articles = KBArticle::where('aktif', true)
             ->where(function($q) use ($keywords) {
                 foreach ($keywords as $keyword) {
-                    $q->orWhere('judul', 'ILIKE', "%{$keyword}%")
-                      ->orWhere('konten', 'ILIKE', "%{$keyword}%")
-                      ->orWhere('tags', 'ILIKE', "%{$keyword}%");
+                    $q->orWhere('judul', 'like', "%{$keyword}%")
+                      ->orWhere('konten', 'like', "%{$keyword}%");
                 }
             })
             ->orderBy('views', 'desc')

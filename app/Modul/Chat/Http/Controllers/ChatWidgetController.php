@@ -22,7 +22,132 @@ class ChatWidgetController extends Controller
     }
 
     /**
-     * Initialize new chat session
+     * Resume existing active session or create new one
+     * Prevents duplicate sessions for same visitor
+     */
+    public function resumeOrCreate(Request $request)
+    {
+        $request->validate([
+            'widget_key'    => 'required|string',
+            'visitor_email' => 'required|email',
+            'visitor_name'  => 'nullable|string|max:100',
+        ]);
+
+        $widget = ChatWidget::where('public_key', $request->widget_key)
+            ->where('aktif', true)->first();
+
+        if (!$widget) {
+            return response()->json(['error' => 'Invalid widget key'], 401);
+        }
+
+        // Look for existing active/escalated session for this visitor+widget
+        $existing = ChatSession::where('widget_id', $widget->id)
+            ->where('email_pengunjung', $request->visitor_email)
+            ->whereIn('status', ['aktif', 'eskalasi'])
+            ->orderBy('aktivitas_terakhir', 'desc')
+            ->first();
+
+        if ($existing) {
+            $existing->updateAktivitas();
+            $messages = $existing->messages()
+                ->orderBy('created_at')
+                ->get()
+                ->map(fn($m) => [
+                    'id'        => $m->id,
+                    'sender'    => $m->pengirim,
+                    'message'   => $m->pesan,
+                    'timestamp' => $m->created_at->toISOString(),
+                ]);
+
+            return response()->json([
+                'session_token' => $existing->session_token,
+                'resumed'       => true,
+                'status'        => $existing->status,
+                'tiket_id'      => $existing->tiket_id,
+                'messages'      => $messages,
+            ]);
+        }
+
+        // Create new session
+        $session = ChatSession::create([
+            'widget_id'        => $widget->id,
+            'nama_pengunjung'  => $request->visitor_name,
+            'email_pengunjung' => $request->visitor_email,
+            'ip_pengunjung'    => $request->ip(),
+            'user_agent'       => $request->userAgent(),
+            'status'           => 'aktif',
+        ]);
+
+        $welcome = ChatMessage::create([
+            'session_id' => $session->id,
+            'pengirim'   => 'ai',
+            'pesan'      => "Hello! 👋 I'm your support assistant. How can I help you today?",
+        ]);
+
+        return response()->json([
+            'session_token' => $session->session_token,
+            'resumed'       => false,
+            'status'        => 'aktif',
+            'tiket_id'      => null,
+            'messages'      => [[
+                'id'        => $welcome->id,
+                'sender'    => 'ai',
+                'message'   => $welcome->pesan,
+                'timestamp' => $welcome->created_at->toISOString(),
+            ]],
+        ]);
+    }
+
+    /**
+     * Poll for new messages since last_id — efficient polling endpoint
+     */
+    public function poll(Request $request, string $sessionToken)
+    {
+        $session = ChatSession::where('session_token', $sessionToken)->first();
+
+        if (!$session) {
+            return response()->json(['error' => 'Invalid session'], 404);
+        }
+
+        $lastId   = (int) $request->query('last_id', 0);
+        $messages = $session->messages()
+            ->where('id', '>', $lastId)
+            ->orderBy('id')
+            ->get()
+            ->map(fn($m) => [
+                'id'        => $m->id,
+                'sender'    => $m->pengirim,
+                'message'   => $m->pesan,
+                'timestamp' => $m->created_at->toISOString(),
+            ]);
+
+        $session->updateAktivitas();
+
+        return response()->json([
+            'messages' => $messages,
+            'status'   => $session->status,
+            'tiket_id' => $session->tiket_id,
+        ]);
+    }
+
+    /**
+     * Close a chat session (customer-initiated)
+     */
+    public function closeSession(Request $request)
+    {
+        $request->validate(['session_token' => 'required|string']);
+
+        $session = ChatSession::where('session_token', $request->session_token)->first();
+
+        if ($session && in_array($session->status, ['aktif', 'eskalasi'])) {
+            $session->update(['status' => 'selesai']);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Initialize new chat session (legacy — use resumeOrCreate instead)
      */
     public function initSession(Request $request)
     {
@@ -55,7 +180,7 @@ class ChatWidgetController extends Controller
         ChatMessage::create([
             'session_id' => $session->id,
             'pengirim' => 'ai',
-            'pesan' => 'Halo! 👋 Saya asisten AI. Ada yang bisa saya bantu?'
+            'pesan' => "Hello! 👋 I'm your support assistant. How can I help you today?"
         ]);
 
         return response()->json([
@@ -147,7 +272,7 @@ class ChatWidgetController extends Controller
             return response()->json([
                 'escalated' => true,
                 'ticket_id' => $session->tiket_id,
-                'message' => 'Tiket support Anda sudah dibuat sebelumnya.'
+                'message' => 'Your support ticket has already been created. Our team will contact you soon.'
             ]);
         }
 
@@ -156,13 +281,14 @@ class ChatWidgetController extends Controller
         ChatMessage::create([
             'session_id' => $session->id,
             'pengirim' => 'ai',
-            'pesan' => "Saya telah membuat tiket support untuk Anda. Tim kami akan segera menghubungi Anda melalui email. Nomor tiket: #{$ticket->id}"
+            'pesan' => "✅ Your support ticket has been created (#{$ticket->no_tiket}). Our team will get back to you via email. You can also track it in the My Tickets tab."
         ]);
 
         return response()->json([
             'escalated' => true,
             'ticket_id' => $ticket->id,
-            'message' => 'Tiket berhasil dibuat. Tim support akan menghubungi Anda segera.'
+            'no_tiket'  => $ticket->no_tiket,
+            'message'   => 'Ticket created. Our support team will contact you soon.'
         ]);
     }
 
