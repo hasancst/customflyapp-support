@@ -53,6 +53,7 @@
 <script>
 let activeSessionId = null;
 let pollInterval = null;
+let msgPollInterval = null;
 
 function toggleAdminChat() {
     const panel = document.getElementById('admin-chat-panel');
@@ -63,7 +64,7 @@ function toggleAdminChat() {
         loadSessions();
         if(!pollInterval) pollInterval = setInterval(loadSessions, 5000); // Poll every 5s
     } else {
-        clearInterval(pollInterval);
+        clearInterval(pollInterval); clearInterval(msgPollInterval); msgPollInterval = null;
         pollInterval = null;
     }
 }
@@ -115,9 +116,12 @@ async function selectSession(id, name) {
     activeSessionId = id;
     document.getElementById('current-visitor-name').innerText = name;
     document.getElementById('chat-input-area').style.display = 'block';
-    loadMessages(id);
-    
-    // Refresh list to highlight
+    await loadMessages(id);
+
+    // Poll messages every 5s for this session
+    if (msgPollInterval) clearInterval(msgPollInterval);
+    msgPollInterval = setInterval(() => loadMessages(activeSessionId), 5000);
+
     loadSessions();
 }
 
@@ -131,18 +135,20 @@ async function loadMessages(sessionId) {
         let html = '';
         
         messages.forEach(msg => {
-            const isMe = msg.sender === 'agent' || msg.sender === 'admin'; // Adjust based on sender value
-            const isAi = msg.sender === 'ai';
-            const align = (isMe || isAi) ? 'flex-end' : 'flex-start';
-            const bg = isMe ? '#4e73df' : (isAi ? '#f3e8ff' : '#f1f5f9');
+            const isMe  = msg.sender === 'agent';
+            const isAi  = msg.sender === 'ai';
+            const isVisitor = msg.sender === 'pengunjung';
+            const align = isMe ? 'flex-end' : 'flex-start';
+            const bg    = isMe ? '#4e73df' : (isAi ? '#f3e8ff' : '#f1f5f9');
             const color = isMe ? 'white' : '#1e293b';
-            
+            const label = isMe ? 'You' : (isAi ? '🤖 AI' : (msg.sender || 'Customer'));
+
             html += `
-                <div style="display: flex; justify-content: ${align}; margin-bottom: 10px;">
-                    <div style="max-width: 70%; background: ${bg}; color: ${color}; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem; position: relative;">
-                        ${isAi ? '<i class="fas fa-robot" style="margin-right:5px; font-size:0.8rem;"></i>' : ''}
+                <div style="display:flex; flex-direction:column; align-items:${align}; margin-bottom:10px;">
+                    <div style="font-size:0.7rem;color:#94a3b8;margin-bottom:3px;">${label}</div>
+                    <div style="max-width:70%;background:${bg};color:${color};padding:8px 12px;border-radius:12px;font-size:0.9rem;">
                         ${msg.message}
-                        <div style="font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-align: right;">${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                        <div style="font-size:0.65rem;opacity:0.7;margin-top:4px;text-align:right;">${msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}</div>
                     </div>
                 </div>
             `;
@@ -158,39 +164,35 @@ async function loadMessages(sessionId) {
 
 async function sendAdminMessage() {
     const input = document.getElementById('admin-message-input');
-    const msg = input.value;
-    if(!msg || !activeSessionId) return;
-    
-    // Optimistic UI
-    const container = document.getElementById('chat-messages');
-    container.innerHTML += `
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-            <div style="max-width: 70%; background: #4e73df; color: white; padding: 8px 12px; border-radius: 12px; font-size: 0.9rem;">
-                ${msg}
-                <div style="font-size: 0.65rem; opacity: 0.7; margin-top: 4px; text-align: right;">Just now</div>
-            </div>
-        </div>
-    `;
-    container.scrollTop = container.scrollHeight;
+    const msg = input.value.trim();
+    if (!msg || !activeSessionId) return;
+
     input.value = '';
-    
+    input.disabled = true;
+
     try {
-        await fetch('/admin/chat/api/message', {
+        const res = await fetch('/admin/chat/api/message', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify({
-                session_id: activeSessionId,
-                message: msg
-            })
+            body: JSON.stringify({ session_id: activeSessionId, message: msg })
         });
-        
-        // Reload to confirm and get timestamp
-        loadMessages(activeSessionId);
+
+        if (res.ok) {
+            // Reload messages AFTER server confirms save
+            await loadMessages(activeSessionId);
+        } else {
+            alert('Failed to send message.');
+            input.value = msg; // restore
+        }
     } catch(e) {
-        alert('Failed to send');
+        alert('Connection error.');
+        input.value = msg;
+    } finally {
+        input.disabled = false;
+        input.focus();
     }
 }
 </script>
