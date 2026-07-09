@@ -22,7 +22,10 @@ Route::prefix('admin/chat')->middleware(['web', 'auth'])->group(function () {
     Route::get('/sessions', [ChatWidgetController::class, 'listSessions']);
     
     // Agent API
-    Route::get('/api/active-sessions', [ChatWidgetController::class, 'getAdminActiveSessions']);
-    Route::get('/api/messages/{sessionId}', [ChatWidgetController::class, 'getAdminMessages']);
-    Route::post('/api/message', [ChatWidgetController::class, 'sendAdminMessage']);
+    Route::get('/api/active-sessions',          [ChatWidgetController::class, 'getAdminActiveSessions']);
+    Route::get('/api/messages/{sessionId}',     [ChatWidgetController::class, 'getAdminMessages']);
+    Route::get('/api/poll/{sessionId}',         [ChatWidgetController::class, 'pollAdminMessages']);
+    Route::post('/api/message',                 [ChatWidgetController::class, 'sendAdminMessage']);
+    Route::post('/api/close',                   [ChatWidgetController::class, 'adminCloseSession']);
+    Route::post('/api/escalate',                [ChatWidgetController::class, 'adminEscalateSession']);
 });

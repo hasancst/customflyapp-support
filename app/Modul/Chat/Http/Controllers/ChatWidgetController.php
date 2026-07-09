@@ -380,39 +380,20 @@ class ChatWidgetController extends Controller
         return view('chat::admin.sessions', compact('sessions'));
     }
 
-    // Agent API Methods
-    public function getAdminActiveSessions()
-    {
-        $sessions = ChatSession::whereIn('status', ['aktif', 'eskalasi'])
-            ->with(['messages' => function($q) {
-                $q->latest()->limit(1);
-            }])
-            ->orderBy('updated_at', 'desc')
-            ->get()
-            ->map(function($s) {
-                return [
-                    'id' => $s->id,
-                    'nama_pengunjung' => $s->nama_pengunjung,
-                    'last_message' => $s->messages->first()->pesan ?? '',
-                    'updated_at' => $s->updated_at
-                ];
-            });
-
-        return response()->json($sessions);
-    }
 
     public function getAdminMessages($sessionId)
     {
-        $session = ChatSession::findOrFail($sessionId);
+        $session  = ChatSession::findOrFail($sessionId);
         $messages = $session->messages()
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(fn($msg) => [
-                'sender' => $msg->pengirim,
-                'message' => $msg->pesan,
-                'timestamp' => $msg->created_at->toISOString()
+                'id'        => $msg->id,
+                'sender'    => $msg->pengirim,
+                'message'   => $msg->pesan,
+                'timestamp' => $msg->created_at->toISOString(),
             ]);
-            
+
         return response()->json($messages);
     }
 
@@ -424,15 +405,109 @@ class ChatWidgetController extends Controller
         ]);
 
         $session = ChatSession::findOrFail($request->session_id);
-        
+
         ChatMessage::create([
             'session_id' => $session->id,
-            'pengirim' => 'agent', // Human agent
-            'pesan' => $request->message
+            'pengirim'   => 'agent',
+            'pesan'      => $request->message
         ]);
-        
+
         $session->updateAktivitas();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Admin: Poll new messages since last_id for a session
+     */
+    public function pollAdminMessages(Request $request, int $sessionId)
+    {
+        $session  = ChatSession::findOrFail($sessionId);
+        $lastId   = (int) $request->query('last_id', 0);
+        $messages = $session->messages()
+            ->where('id', '>', $lastId)
+            ->orderBy('id')
+            ->get()
+            ->map(fn($m) => [
+                'id'        => $m->id,
+                'sender'    => $m->pengirim,
+                'message'   => $m->pesan,
+                'timestamp' => $m->created_at->toISOString(),
+            ]);
+
+        return response()->json([
+            'messages' => $messages,
+            'status'   => $session->status,
+            'tiket_id' => $session->tiket_id,
+        ]);
+    }
+
+    /**
+     * Admin: Close a session
+     */
+    public function adminCloseSession(Request $request)
+    {
+        $request->validate(['session_id' => 'required|exists:chat_sessions,id']);
+        $session = ChatSession::findOrFail($request->session_id);
+
+        if (in_array($session->status, ['aktif', 'eskalasi'])) {
+            ChatMessage::create([
+                'session_id' => $session->id,
+                'pengirim'   => 'agent',
+                'pesan'      => 'This chat session has been closed by the support team.',
+            ]);
+            $session->update(['status' => 'selesai']);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Admin: Escalate session to ticket
+     */
+    public function adminEscalateSession(Request $request)
+    {
+        $request->validate(['session_id' => 'required|exists:chat_sessions,id']);
+        $session = ChatSession::findOrFail($request->session_id);
+
+        if ($session->status === 'eskalasi' && $session->tiket_id) {
+            return response()->json(['success' => true, 'tiket_id' => $session->tiket_id]);
+        }
+
+        $ticket = $this->escalationService->escalateToTicket($session);
+
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'pengirim'   => 'agent',
+            'pesan'      => "✅ Support ticket #{$ticket->no_tiket} has been created. The customer will be contacted via email.",
+        ]);
+
+        return response()->json([
+            'success'  => true,
+            'tiket_id' => $ticket->id,
+            'no_tiket' => $ticket->no_tiket,
+        ]);
+    }
+
+    /**
+     * Admin: Get active sessions with email + status
+     */
+    public function getAdminActiveSessions()
+    {
+        $sessions = ChatSession::whereIn('status', ['aktif', 'eskalasi'])
+            ->with(['messages' => function($q) { $q->latest()->limit(1); }])
+            ->orderBy('aktivitas_terakhir', 'desc')
+            ->get()
+            ->map(fn($s) => [
+                'id'              => $s->id,
+                'nama_pengunjung' => $s->nama_pengunjung ?? 'Anonymous',
+                'email'           => $s->email_pengunjung ?? '',
+                'status'          => $s->status,
+                'tiket_id'        => $s->tiket_id,
+                'last_message'    => $s->messages->first()?->pesan ?? '',
+                'updated_at'      => $s->aktivitas_terakhir,
+            ]);
+
+        return response()->json($sessions);
     }
 }
