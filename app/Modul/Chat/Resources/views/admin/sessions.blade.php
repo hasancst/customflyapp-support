@@ -7,7 +7,7 @@
 .chat-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; height: calc(100vh - 180px); min-height: 500px; }
 .session-list { background: white; border-radius: 14px; border: 1px solid #e2e8f0; overflow: hidden; display: flex; flex-direction: column; }
 .session-list-header { padding: 16px 18px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-.session-item { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s; }
+.session-item { padding: 14px 18px; border-bottom: 1px solid #f1f5f9; cursor: default; transition: background 0.15s; display: flex; flex-direction: column; }
 .session-item:hover { background: #f8fafc; }
 .session-item.active { background: #EEF2FF; border-left: 3px solid #6366f1; }
 .session-items { overflow-y: auto; flex: 1; }
@@ -102,12 +102,34 @@ async function loadSessions() {
             return;
         }
         list.innerHTML = data.map(s => `
-            <div class="session-item ${s.id == currentSessionId ? 'active' : ''}" onclick="selectSession(${s.id}, '${escHtml(s.nama_pengunjung || 'Anonymous')}', '${escHtml(s.email || '')}', '${escHtml(s.status || 'aktif')}', ${s.tiket_id || 'null'})">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <span style="font-weight:600;font-size:13px;color:#1e293b;">${escHtml(s.nama_pengunjung || 'Anonymous')}</span>
-                    <span class="status-badge ${STATUS_CLASS[s.status] || 'status-aktif'}">${STATUS_LABEL[s.status] || s.status}</span>
+            <div class="session-item ${s.id == currentSessionId ? 'active' : ''}" id="session-item-${s.id}">
+                <div onclick="selectSession(${s.id}, '${escHtml(s.nama_pengunjung || 'Anonymous')}', '${escHtml(s.email || '')}', '${escHtml(s.status || 'aktif')}', ${s.tiket_id || 'null'})"
+                    style="flex:1; cursor:pointer;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                        <span style="font-weight:600;font-size:13px;color:#1e293b;">${escHtml(s.nama_pengunjung || 'Anonymous')}</span>
+                        <span class="status-badge ${STATUS_CLASS[s.status] || 'status-aktif'}">${STATUS_LABEL[s.status] || s.status}</span>
+                    </div>
+                    <div style="font-size:12px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.email || '')}</div>
+                    <div style="font-size:11px;color:#cbd5e1;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.last_message || '...')}</div>
                 </div>
-                <div style="font-size:12px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.last_message || '...')}</div>
+                <div style="display:flex;gap:4px;margin-top:8px;flex-shrink:0;">
+                    ${s.status !== 'selesai' ? `
+                    <button onclick="quickClose(${s.id}, event)" title="Close session"
+                        style="padding:4px 10px;background:#fef2f2;color:#ef4444;border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">
+                        ✕ Close
+                    </button>
+                    ` : ''}
+                    ${s.status === 'aktif' && !s.tiket_id ? `
+                    <button onclick="quickEscalate(${s.id}, event)" title="Create ticket"
+                        style="padding:4px 10px;background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">
+                        🎫
+                    </button>
+                    ` : ''}
+                    <button onclick="quickDelete(${s.id}, event)" title="Delete permanently"
+                        style="padding:4px 10px;background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">
+                        🗑
+                    </button>
+                </div>
             </div>
         `).join('');
     } catch(e) { console.error(e); }
@@ -274,6 +296,50 @@ document.addEventListener('keydown', e => {
 
 function escHtml(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Quick actions from session list ──────────────────────────────────────────
+async function quickClose(sessionId, event) {
+    event.stopPropagation();
+    if (!confirm('Close this chat session?')) return;
+    await fetch('/admin/chat/api/close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ session_id: sessionId }),
+    });
+    if (currentSessionId === sessionId) updateStatusUI('selesai', null);
+    loadSessions();
+}
+
+async function quickEscalate(sessionId, event) {
+    event.stopPropagation();
+    if (!confirm('Create a support ticket for this session?')) return;
+    const res  = await fetch('/admin/chat/api/escalate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ session_id: sessionId }),
+    });
+    const data = await res.json();
+    if (data.success) {
+        if (currentSessionId === sessionId) updateStatusUI('eskalasi', data.tiket_id);
+        loadSessions();
+    }
+}
+
+async function quickDelete(sessionId, event) {
+    event.stopPropagation();
+    if (!confirm('Permanently delete this session and all its messages? This cannot be undone.')) return;
+    await fetch(`/admin/chat/api/session/${sessionId}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+    });
+    if (currentSessionId === sessionId) {
+        currentSessionId = null;
+        if (pollingInterval) clearInterval(pollingInterval);
+        document.getElementById('chat-empty').style.display = '';
+        document.getElementById('chat-active').style.display = 'none';
+    }
+    loadSessions();
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────

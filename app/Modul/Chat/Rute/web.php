@@ -28,4 +28,5 @@ Route::prefix('admin/chat')->middleware(['web', 'auth'])->group(function () {
     Route::post('/api/message',                 [ChatWidgetController::class, 'sendAdminMessage']);
     Route::post('/api/close',                   [ChatWidgetController::class, 'adminCloseSession']);
     Route::post('/api/escalate',                [ChatWidgetController::class, 'adminEscalateSession']);
+    Route::delete('/api/session/{sessionId}',   [ChatWidgetController::class, 'adminDeleteSession']);
 });

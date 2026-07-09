@@ -490,6 +490,17 @@ class ChatWidgetController extends Controller
     }
 
     /**
+     * Admin: Delete a session permanently (removes messages too via cascade)
+     */
+    public function adminDeleteSession(int $sessionId)
+    {
+        $session = ChatSession::findOrFail($sessionId);
+        $session->messages()->delete();
+        $session->delete();
+        return response()->json(['success' => true]);
+    }
+
+    /**
      * Admin: Get active sessions with email + status
      */
     public function getAdminActiveSessions()
