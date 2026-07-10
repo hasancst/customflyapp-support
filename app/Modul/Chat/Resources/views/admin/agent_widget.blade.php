@@ -1,4 +1,4 @@
-@if(in_array('chat', array_map('strtolower', $modulAktif ?? [])))
+@if(in_array('chat', array_map('strtolower', $modulAktif ?? [])) && !request()->is('admin/chat/sessions*'))
 <div id="admin-chat-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: 'Outfit', sans-serif;">
     <!-- Toggle Button -->
     <button onclick="toggleAdminChat()" style="background: #4e73df; color: white; border: none; padding: 12px 20px; border-radius: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600;">

@@ -550,3 +550,4 @@ class ChatWidgetController extends Controller
         }
         return null;
     }
+}
