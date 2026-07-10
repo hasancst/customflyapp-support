@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Modul\Tiket\Model\Tiket;
 use App\Modul\Tiket\Model\TiketPesan;
 use App\Modul\Tiket\Model\TiketKategori;
+use App\Modul\Tiket\Model\TiketLampiran;
+use App\Modul\Tiket\Model\TiketMakro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TiketController extends Controller
 {
@@ -105,21 +109,42 @@ class TiketController extends Controller
     public function balas(Request $request, $id)
     {
         $request->validate([
-            'pesan' => 'required',
+            'pesan'       => 'required',
+            'lampiran.*'  => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,zip',
         ]);
 
         $tiket = Tiket::findOrFail($id);
 
         TiketPesan::create([
-            'tiket_id' => $tiket->id,
-            'user_id' => Auth::id(),
+            'tiket_id'      => $tiket->id,
+            'user_id'       => Auth::id(),
             'nama_pengirim' => Auth::user()->nama,
-            'pesan' => $request->pesan,
-            'is_admin' => true,
+            'pesan'         => $request->pesan,
+            'is_admin'      => true,
         ]);
 
-        // Jika status selesai, buka kembali jika dibalas? 
-        // Biasanya kalau admin balas, status jadi 'proses'
+        // Handle file attachments
+        if ($request->hasFile('lampiran')) {
+            foreach ($request->file('lampiran') as $file) {
+                $ext  = $file->getClientOriginalExtension();
+                $uuid = Str::uuid();
+                $path = "tikets/{$tiket->id}/{$uuid}.{$ext}";
+
+                Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+                $url = rtrim(config('filesystems.disks.s3.url'), '/') . '/' . $path;
+
+                TiketLampiran::create([
+                    'tiket_id'      => $tiket->id,
+                    'nama_file'     => $file->getClientOriginalName(),
+                    'path'          => $path,
+                    'url'           => $url,
+                    'mime_type'     => $file->getMimeType(),
+                    'ukuran'        => $file->getSize(),
+                    'diunggah_oleh' => Auth::user()->email,
+                ]);
+            }
+        }
+
         if ($tiket->status == 'terbuka' || $tiket->status == 'selesai') {
             $tiket->update(['status' => 'proses']);
         }

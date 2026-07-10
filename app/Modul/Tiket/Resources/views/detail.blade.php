@@ -88,26 +88,59 @@
         <!-- Form Balas -->
         @if($tiket->status != 'ditutup')
         <div class="card" style="margin-top: 40px;">
-            <form action="/admin/tiket/balas/{{ $tiket->id }}" method="POST">
+            <form action="/admin/tiket/balas/{{ $tiket->id }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <h4 style="margin-bottom: 15px;">Reply Ticket</h4>
 
-                {{-- Macro picker --}}
-                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;{{ $makros->isEmpty() ? ' display:none;' : '' }}">
-                    <label style="font-size: 0.8rem; font-weight: 600; color: #64748b; white-space: nowrap;">
-                        <i class="fas fa-bolt" style="color: #6366f1;"></i> Macro:
-                    </label>
-                    <select id="macro-picker"
-                        style="flex: 1; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.85rem; background: #f8fafc; color: #475569; cursor: pointer; max-width: 380px;">
-                        <option value="">-- Select a template --</option>
-                        @foreach($makros as $m)
-                            <option value="{{ $m->id }}" data-isi="{{ $m->isi }}">{{ $m->judul }}</option>
-                        @endforeach
-                    </select>
+                {{-- Toolbar: Macro + KB picker --}}
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center;">
+
+                    {{-- Macro picker --}}
+                    @if($makros->isNotEmpty())
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <label style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">
+                            <i class="fas fa-bolt" style="color:#6366f1;"></i> Macro:
+                        </label>
+                        <select id="macro-picker"
+                            style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.85rem;background:#f8fafc;color:#475569;cursor:pointer;min-width:180px;">
+                            <option value="">-- Select --</option>
+                            @foreach($makros as $m)
+                                <option value="{{ $m->id }}" data-isi="{{ $m->isi }}">{{ $m->judul }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
+
+                    {{-- KB article picker --}}
+                    <div style="display:flex;align-items:center;gap:6px;position:relative;">
+                        <label style="font-size:0.8rem;font-weight:600;color:#64748b;white-space:nowrap;">
+                            <i class="fas fa-book" style="color:#0ea5e9;"></i> KB:
+                        </label>
+                        <div style="position:relative;">
+                            <input type="text" id="kb-search" placeholder="Search article..." autocomplete="off"
+                                style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.85rem;background:#f8fafc;color:#475569;width:200px;outline:none;">
+                            <div id="kb-results"
+                                style="display:none;position:absolute;top:calc(100% + 4px);left:0;width:320px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:200;max-height:260px;overflow-y:auto;">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <textarea id="reply-textarea" name="pesan" rows="5" placeholder="Write your reply here..." style="margin-bottom: 15px;"></textarea>
-                <div style="display: flex; justify-content: flex-end;">
+                <textarea id="reply-textarea" name="pesan" rows="5" placeholder="Write your reply here..." style="margin-bottom:10px;"></textarea>
+
+                {{-- File attachment --}}
+                <div style="margin-bottom:12px;">
+                    <label id="attach-label"
+                        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:8px;cursor:pointer;font-size:0.85rem;color:#475569;font-weight:600;transition:background 0.2s;">
+                        <i class="fas fa-paperclip" style="color:#6366f1;"></i> Attach Files
+                        <input type="file" name="lampiran[]" id="file-input" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.zip"
+                            style="display:none;">
+                    </label>
+                    <div id="file-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+                    <p style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Max 5 files, 10MB each. Allowed: JPG, PNG, GIF, WEBP, PDF, DOC, DOCX, ZIP</p>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;">
                     <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Send Reply</button>
                 </div>
             </form>
@@ -176,34 +209,133 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const picker   = document.getElementById('macro-picker');
     const textarea = document.getElementById('reply-textarea');
-    if (!picker || !textarea) return;
 
-    picker.addEventListener('change', function () {
-        const selected = this.options[this.selectedIndex];
-        const raw = selected.dataset.isi;
-        if (!raw) return;
+    // ── Macro picker ────────────────────────────────────────────────────────
+    const macroPicker = document.getElementById('macro-picker');
+    if (macroPicker && textarea) {
+        macroPicker.addEventListener('change', function () {
+            const selected = this.options[this.selectedIndex];
+            const raw = selected.dataset.isi;
+            if (!raw) return;
 
-        // Replace placeholders with real ticket values
-        const name     = {!! json_encode($tiket->nama ?? $tiket->email) !!};
-        const email    = {!! json_encode($tiket->email) !!};
-        const ticketNo = {!! json_encode($tiket->no_tiket) !!};
+            const name     = {!! json_encode($tiket->nama ?? $tiket->email) !!};
+            const email    = {!! json_encode($tiket->email) !!};
+            const ticketNo = {!! json_encode($tiket->no_tiket) !!};
 
-        const content = raw
-            .replace(/\{\{name\}\}/g,      name)
-            .replace(/\{\{email\}\}/g,     email)
-            .replace(/\{\{ticket_no\}\}/g, ticketNo);
+            const content = raw
+                .replace(/\{\{name\}\}/g,      name)
+                .replace(/\{\{email\}\}/g,     email)
+                .replace(/\{\{ticket_no\}\}/g, ticketNo);
 
-        textarea.value = textarea.value.trim()
-            ? textarea.value + '\n\n' + content
-            : content;
+            textarea.value = textarea.value.trim()
+                ? textarea.value + '\n\n' + content
+                : content;
 
-        // Reset picker and focus textarea
-        this.selectedIndex = 0;
-        textarea.focus();
-        textarea.scrollTop = textarea.scrollHeight;
-    });
+            this.selectedIndex = 0;
+            textarea.focus();
+        });
+    }
+
+    // ── KB article search ───────────────────────────────────────────────────
+    const kbSearch  = document.getElementById('kb-search');
+    const kbResults = document.getElementById('kb-results');
+
+    if (kbSearch && kbResults && textarea) {
+        let debounce;
+
+        kbSearch.addEventListener('input', function () {
+            clearTimeout(debounce);
+            const q = this.value.trim();
+            if (!q) { kbResults.style.display = 'none'; return; }
+
+            debounce = setTimeout(async () => {
+                try {
+                    const res  = await fetch('/admin/kb/search?q=' + encodeURIComponent(q), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await res.json();
+
+                    if (!data.length) {
+                        kbResults.innerHTML = '<div style="padding:12px 14px;font-size:0.85rem;color:#94a3b8;">No articles found.</div>';
+                    } else {
+                        kbResults.innerHTML = data.map(a => `
+                            <div class="kb-item" data-url="${a.url}" data-judul="${a.judul.replace(/"/g,'&quot;')}"
+                                style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:0.85rem;color:#1e293b;transition:background 0.15s;"
+                                onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+                                <i class="fas fa-file-alt" style="color:#0ea5e9;margin-right:6px;"></i>${a.judul}
+                            </div>`).join('');
+
+                        // Click to insert link into textarea
+                        kbResults.querySelectorAll('.kb-item').forEach(item => {
+                            item.addEventListener('click', function () {
+                                const link = '\n🔗 ' + this.dataset.judul + ': ' + this.dataset.url;
+                                textarea.value = textarea.value.trimEnd() + link;
+                                kbSearch.value = '';
+                                kbResults.style.display = 'none';
+                                textarea.focus();
+                                textarea.scrollTop = textarea.scrollHeight;
+                            });
+                        });
+                    }
+
+                    kbResults.style.display = 'block';
+                } catch(e) {
+                    kbResults.style.display = 'none';
+                }
+            }, 300);
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!kbSearch.contains(e.target) && !kbResults.contains(e.target)) {
+                kbResults.style.display = 'none';
+            }
+        });
+    }
+
+    // ── File attachment preview ─────────────────────────────────────────────
+    const fileInput   = document.getElementById('file-input');
+    const filePreview = document.getElementById('file-preview');
+
+    if (fileInput && filePreview) {
+        fileInput.addEventListener('change', function () {
+            filePreview.innerHTML = '';
+            const files = Array.from(this.files).slice(0, 5);
+
+            files.forEach(file => {
+                const isImg = file.type.startsWith('image/');
+                const size  = file.size < 1048576
+                    ? (file.size / 1024).toFixed(1) + ' KB'
+                    : (file.size / 1048576).toFixed(1) + ' MB';
+
+                const chip = document.createElement('div');
+                chip.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;font-size:0.8rem;color:#475569;max-width:200px;';
+
+                if (isImg) {
+                    const img = document.createElement('img');
+                    img.style.cssText = 'width:28px;height:28px;object-fit:cover;border-radius:4px;flex-shrink:0;';
+                    img.src = URL.createObjectURL(file);
+                    chip.appendChild(img);
+                } else {
+                    chip.innerHTML = '<i class="fas fa-file" style="color:#6366f1;flex-shrink:0;"></i>';
+                }
+
+                const label = document.createElement('span');
+                label.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;';
+                label.title = file.name + ' (' + size + ')';
+                label.textContent = file.name;
+                chip.appendChild(label);
+
+                const sizeSpan = document.createElement('span');
+                sizeSpan.style.cssText = 'color:#94a3b8;white-space:nowrap;flex-shrink:0;';
+                sizeSpan.textContent = size;
+                chip.appendChild(sizeSpan);
+
+                filePreview.appendChild(chip);
+            });
+        });
+    }
 });
 </script>
 @endsection

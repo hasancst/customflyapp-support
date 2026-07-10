@@ -19,6 +19,7 @@ Route::prefix('admin/kb')->middleware(['web', 'auth'])->group(function () {
     Route::get('/article/edit/{id}', [KBAdminController::class, 'editArticle']);
     Route::post('/article/update/{id}', [KBAdminController::class, 'updateArticle']);
     Route::post('/article/delete/{id}', [KBAdminController::class, 'deleteArticle']);
+    Route::get('/search', [KBAdminController::class, 'search']);
     Route::post('/article/ai-bantu', [KBAdminController::class, 'aiBantu']);
 });
 

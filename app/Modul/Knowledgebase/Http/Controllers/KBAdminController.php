@@ -19,6 +19,29 @@ class KBAdminController extends Controller
         return view('knowledgebase::admin.category_index', compact('categories'));
     }
 
+    /**
+     * GET /admin/kb/search?q=term  — JSON search for ticket reply KB picker
+     */
+    public function search(Request $request)
+    {
+        $q = trim($request->input('q', ''));
+
+        $articles = KBArticle::where('aktif', true)
+            ->when($q, fn($query) => $query->where(function($query) use ($q) {
+                $query->where('judul', 'like', "%{$q}%")
+                      ->orWhere('konten', 'like', "%{$q}%");
+            }))
+            ->orderBy('views', 'desc')
+            ->limit(10)
+            ->get(['id', 'judul', 'slug']);
+
+        return response()->json($articles->map(fn($a) => [
+            'id'    => $a->id,
+            'judul' => $a->judul,
+            'url'   => url('/kb/' . $a->slug),
+        ]));
+    }
+
     public function storeCategory(Request $request)
     {
         $request->validate(['nama' => 'required']);
@@ -64,11 +87,39 @@ class KBAdminController extends Controller
     }
 
     // Article Management
-    public function indexArticle()
+    public function indexArticle(Request $request)
     {
-        $articles = KBArticle::with('category')->latest()->paginate(20);
-        $categories = KBCategory::all();
-        return view('knowledgebase::admin.article_index', compact('articles', 'categories'));
+        $query = KBArticle::with('category');
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function($q) use ($cari) {
+                $q->where('judul', 'like', "%{$cari}%")
+                  ->orWhere('slug', 'like', "%{$cari}%");
+            });
+        }
+
+        if ($request->filled('category_id')) {
+            $selectedId = (int) $request->category_id;
+            // If selecting a parent, include all its children too
+            $childIds = KBCategory::where('parent_id', $selectedId)->pluck('id')->toArray();
+            $ids = array_merge([$selectedId], $childIds);
+            $query->whereIn('category_id', $ids);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('aktif', $request->status === 'aktif');
+        }
+
+        $articles = $query->latest()->paginate(20)->withQueryString();
+
+        // Build grouped list: parents with their children
+        $categoryGroups = KBCategory::whereNull('parent_id')
+            ->with(['children' => fn($q) => $q->orderBy('nama')])
+            ->orderBy('nama')
+            ->get();
+
+        return view('knowledgebase::admin.article_index', compact('articles', 'categoryGroups'));
     }
 
     public function createArticle()

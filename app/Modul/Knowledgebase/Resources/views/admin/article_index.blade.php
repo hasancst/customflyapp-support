@@ -15,6 +15,75 @@
         </div>
     @endif
 
+    {{-- Filter Bar --}}
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px 18px; margin-bottom: 22px;">
+        <form action="/admin/kb/article" method="GET" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+
+            <div style="flex: 2; min-width: 220px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; color:#64748b; margin-bottom:4px;">Search</label>
+                <input type="text" name="cari" id="kb-cari" value="{{ request('cari') }}"
+                    placeholder="Search by title or slug..."
+                    style="width:100%; padding:7px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.88rem; outline:none;">
+            </div>
+
+            <div style="flex: 1; min-width: 160px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; color:#64748b; margin-bottom:4px;">Category</label>
+                <select name="category_id" onchange="this.form.submit()"
+                    style="width:100%; padding:7px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.88rem; background:#fff; outline:none; cursor:pointer;">
+                    <option value="">-- All --</option>
+                    @foreach($categoryGroups as $parent)
+                        @if($parent->children->isEmpty())
+                            {{-- Root category with no children — selectable directly --}}
+                            <option value="{{ $parent->id }}" {{ request('category_id') == $parent->id ? 'selected' : '' }}>
+                                {{ $parent->nama }}
+                            </option>
+                        @else
+                            {{-- Parent as optgroup label, also selectable --}}
+                            <optgroup label="{{ $parent->nama }}">
+                                <option value="{{ $parent->id }}" {{ request('category_id') == $parent->id ? 'selected' : '' }}>
+                                    All {{ $parent->nama }}
+                                </option>
+                                @foreach($parent->children as $child)
+                                    <option value="{{ $child->id }}" {{ request('category_id') == $child->id ? 'selected' : '' }}>
+                                        &nbsp;&nbsp;↳ {{ $child->nama }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="flex: 1; min-width: 130px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; color:#64748b; margin-bottom:4px;">Status</label>
+                <select name="status" onchange="this.form.submit()"
+                    style="width:100%; padding:7px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:0.88rem; background:#fff; outline:none; cursor:pointer;">
+                    <option value="">-- All --</option>
+                    <option value="aktif"  {{ request('status') === 'aktif'  ? 'selected' : '' }}>Aktif</option>
+                    <option value="draft"  {{ request('status') === 'draft'  ? 'selected' : '' }}>Draft</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                @if(request('cari') || request('category_id') || request('status'))
+                    <a href="/admin/kb/article" class="btn"
+                        style="padding:7px 14px; font-size:0.88rem; background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">
+                        <i class="fas fa-times"></i> Reset
+                    </a>
+                @endif
+            </div>
+        </form>
+
+        @if(request('cari') || request('category_id') || request('status'))
+        <div style="margin-top: 10px; font-size: 0.82rem; color: #64748b;">
+            Showing <strong>{{ $articles->total() }}</strong> result(s)
+            @if(request('cari')) for "<strong>{{ request('cari') }}</strong>"@endif
+            @if(request('category_id')) in category <strong>{{ $categoryGroups->flatMap(fn($p) => $p->children->prepend($p))->firstWhere('id', request('category_id'))?->nama }}</strong>@endif
+            @if(request('status')) · status: <strong>{{ request('status') }}</strong>@endif
+        </div>
+        @endif
+    </div>
+
     <div style="overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -63,8 +132,55 @@
         </table>
     </div>
 
-    <div style="margin-top: 20px;">
-        {{ $articles->links() }}
+    <div style="margin-top: 20px; display: flex; justify-content: center;">
+        <div class="pagination-wrapper">
+            {{ $articles->links() }}
+        </div>
     </div>
 </div>
+
+<style>
+.pagination-wrapper .pagination {
+    display: flex;
+    gap: 5px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.pagination-wrapper .page-item .page-link {
+    padding: 6px 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #475569;
+    background: #fff;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+.pagination-wrapper .page-item .page-link:hover {
+    background: #f1f5f9;
+}
+.pagination-wrapper .page-item.active .page-link {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #fff;
+}
+.pagination-wrapper .page-item.disabled .page-link {
+    color: #cbd5e1;
+    pointer-events: none;
+}
+</style>
+
+<script>
+// Auto-submit search after user stops typing (400ms debounce)
+(function () {
+    const input = document.getElementById('kb-cari');
+    if (!input) return;
+    let timer;
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(() => this.form.submit(), 400);
+    });
+})();
+</script>
 @endsection

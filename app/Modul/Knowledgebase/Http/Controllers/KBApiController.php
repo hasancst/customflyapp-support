@@ -12,17 +12,51 @@ class KBApiController extends Controller
     /**
      * GET /api/shopify/kb
      *
-     * Without ?q: returns all top-level categories (with children + article count)
-     *             and the 5 most-viewed active articles.
-     * With ?q:    returns search results matching judul or konten.
+     * Scoped to Customfly app only (parent category id=3).
+     * Without ?q: returns Customfly sub-categories with article counts
+     *             and the 5 most-viewed active Customfly articles.
+     * With ?q:    returns search results scoped to Customfly articles only.
+     * With ?category_slug: returns articles in that specific sub-category.
      */
     public function index(Request $request)
     {
-        $search = $request->input('q');
+        $search       = $request->input('q');
+        $categorySlug = $request->input('category_slug');
+
+        // Get all Customfly sub-category IDs (parent_id = 3)
+        $customflySubIds = KBCategory::where('parent_id', 3)->pluck('id');
+
+        // ── Category article list ────────────────────────────────────────────
+        if ($categorySlug) {
+            $cat = KBCategory::where('slug', $categorySlug)
+                ->whereIn('id', $customflySubIds)
+                ->first();
+
+            if (!$cat) {
+                return response()->json(['berhasil' => false, 'data' => []]);
+            }
+
+            $articles = KBArticle::with('category')
+                ->where('aktif', true)
+                ->where('category_id', $cat->id)
+                ->orderBy('urutan')
+                ->orderBy('judul')
+                ->get()
+                ->map(fn($a) => [
+                    'id'        => $a->id,
+                    'judul'     => $a->judul,
+                    'slug'      => $a->slug,
+                    'ringkasan' => mb_substr(strip_tags($a->konten), 0, 160),
+                    'views'     => $a->views,
+                ]);
+
+            return response()->json(['berhasil' => true, 'tipe' => 'kategori', 'kategori' => $cat->nama, 'artikel' => $articles]);
+        }
 
         if ($search) {
             $results = KBArticle::with('category')
                 ->where('aktif', true)
+                ->whereIn('category_id', $customflySubIds)
                 ->where(function ($query) use ($search) {
                     $query->where('judul', 'like', "%{$search}%")
                           ->orWhere('konten', 'like', "%{$search}%");
@@ -30,12 +64,12 @@ class KBApiController extends Controller
                 ->orderBy('views', 'desc')
                 ->get()
                 ->map(fn ($article) => [
-                    'id'       => $article->id,
-                    'judul'    => $article->judul,
-                    'slug'     => $article->slug,
+                    'id'        => $article->id,
+                    'judul'     => $article->judul,
+                    'slug'      => $article->slug,
                     'ringkasan' => mb_substr(strip_tags($article->konten), 0, 160),
-                    'views'    => $article->views,
-                    'kategori' => $article->category
+                    'views'     => $article->views,
+                    'kategori'  => $article->category
                         ? ['id' => $article->category->id, 'nama' => $article->category->nama, 'slug' => $article->category->slug]
                         : null,
                 ]);
@@ -48,39 +82,34 @@ class KBApiController extends Controller
             ]);
         }
 
-        // No search — return categories + popular articles
-        $categories = KBCategory::whereNull('parent_id')
-            ->with(['children' => function ($q) {
-                $q->orderBy('urutan');
-            }])
-            ->withCount(['articles as jumlah_artikel'])
+        // No search — return Customfly sub-categories with article count
+        $categories = KBCategory::where('parent_id', 3)
             ->orderBy('urutan')
             ->get()
-            ->map(fn ($cat) => [
-                'id'             => $cat->id,
-                'nama'           => $cat->nama,
-                'slug'           => $cat->slug,
-                'ikon'           => $cat->ikon,
-                'deskripsi'      => $cat->deskripsi,
-                'jumlah_artikel' => $cat->jumlah_artikel,
-                'sub_kategori'   => $cat->children->map(fn ($child) => [
-                    'id'   => $child->id,
-                    'nama' => $child->nama,
-                    'slug' => $child->slug,
-                    'ikon' => $child->ikon,
-                ]),
-            ]);
+            ->map(function ($cat) {
+                $count = KBArticle::where('category_id', $cat->id)->where('aktif', true)->count();
+                return [
+                    'id'             => $cat->id,
+                    'nama'           => $cat->nama,
+                    'slug'           => $cat->slug,
+                    'ikon'           => $cat->ikon ?? null,
+                    'deskripsi'      => $cat->deskripsi ?? null,
+                    'jumlah_artikel' => $count,
+                    'sub_kategori'   => [],
+                ];
+            });
 
         $popularArticles = KBArticle::with('category')
             ->where('aktif', true)
+            ->whereIn('category_id', $customflySubIds)
             ->orderBy('views', 'desc')
             ->limit(5)
             ->get()
             ->map(fn ($article) => [
-                'id'       => $article->id,
-                'judul'    => $article->judul,
-                'slug'     => $article->slug,
-                'views'    => $article->views,
+                'id'      => $article->id,
+                'judul'   => $article->judul,
+                'slug'    => $article->slug,
+                'views'   => $article->views,
                 'kategori' => $article->category
                     ? ['id' => $article->category->id, 'nama' => $article->category->nama, 'slug' => $article->category->slug]
                     : null,
