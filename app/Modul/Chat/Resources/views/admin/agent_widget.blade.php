@@ -87,13 +87,12 @@ async function loadSessions() {
         let html = '';
         sessions.forEach(s => {
             const isActive = activeSessionId === s.id;
+            const safeName = (s.nama_pengunjung || 'Anonymous').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             html += `
-                <div onclick="selectSession(${s.id}, '${s.nama_pengunjung || 'Anonymous'}')" 
-                     style="padding: 10px; border-radius: 6px; cursor: pointer; margin-bottom: 5px; background: ${isActive ? '#e0f2fe' : 'white'}; border: 1px solid ${isActive ? '#bae6fd' : 'transparent'}; transition: bg 0.2s;">
+                <div onclick="selectSession(${s.id}, &quot;${safeName}&quot;)"
+                     style="padding: 10px; border-radius: 6px; cursor: pointer; margin-bottom: 5px; background: ${isActive ? '#e0f2fe' : 'white'}; border: 1px solid ${isActive ? '#bae6fd' : 'transparent'}; transition: background 0.2s;">
                     <div style="font-weight: 600; font-size: 0.9rem; color: #1e293b;">${s.nama_pengunjung || 'Anonymous'}</div>
-                    <div style="font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        ${s.last_message || '...'}
-                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${s.last_message || '...'}</div>
                 </div>
             `;
         });
