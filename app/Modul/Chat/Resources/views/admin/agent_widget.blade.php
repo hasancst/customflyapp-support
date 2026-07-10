@@ -134,7 +134,7 @@ async function loadMessages(sessionId) {
         let html = '';
         
         messages.forEach(msg => {
-            const isMe  = msg.sender === 'agent';
+            const isMe  = msg.sender === 'agen';
             const isAi  = msg.sender === 'ai';
             const isVisitor = msg.sender === 'pengunjung';
             const align = isMe ? 'flex-end' : 'flex-start';

@@ -212,8 +212,8 @@ async function pollNewMessages() {
 }
 
 function renderMessage(m) {
-    const cls     = m.sender === 'pengunjung' ? 'msg-visitor' : m.sender === 'agent' ? 'msg-agent' : 'msg-ai';
-    const label   = m.sender === 'pengunjung' ? 'Customer' : m.sender === 'agent' ? 'You (Agent)' : 'AI';
+    const cls     = m.sender === 'pengunjung' ? 'msg-visitor' : m.sender === 'agen' ? 'msg-agent' : 'msg-ai';
+    const label   = m.sender === 'pengunjung' ? 'Customer' : m.sender === 'agen' ? 'You (Agent)' : 'AI';
     const isRight = m.sender === 'pengunjung';
     const time    = m.timestamp ? new Date(m.timestamp).toLocaleTimeString('en', {hour:'2-digit',minute:'2-digit'}) : '';
     return `

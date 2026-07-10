@@ -408,7 +408,7 @@ class ChatWidgetController extends Controller
 
         ChatMessage::create([
             'session_id' => $session->id,
-            'pengirim'   => 'agent',
+            'pengirim'   => 'agen',
             'pesan'      => $request->message
         ]);
 
@@ -453,7 +453,7 @@ class ChatWidgetController extends Controller
         if (in_array($session->status, ['aktif', 'eskalasi'])) {
             ChatMessage::create([
                 'session_id' => $session->id,
-                'pengirim'   => 'agent',
+                'pengirim'   => 'agen',
                 'pesan'      => 'This chat session has been closed by the support team.',
             ]);
             $session->update(['status' => 'selesai']);
@@ -478,7 +478,7 @@ class ChatWidgetController extends Controller
 
         ChatMessage::create([
             'session_id' => $session->id,
-            'pengirim'   => 'agent',
+            'pengirim'   => 'agen',
             'pesan'      => "✅ Support ticket #{$ticket->no_tiket} has been created. The customer will be contacted via email.",
         ]);
 
