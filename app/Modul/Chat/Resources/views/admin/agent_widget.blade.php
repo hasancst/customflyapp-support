@@ -8,10 +8,10 @@
     </button>
 
     <!-- Chat Panel -->
-    <div id="admin-chat-panel" style="display: none; width: 800px; height: 500px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); position: absolute; bottom: 60px; right: 0; overflow: hidden; border: 1px solid #e2e8f0; grid-template-columns: 250px 1fr;">
+    <div id="admin-chat-panel" style="display: none; width: 800px; height: 520px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); position: fixed; bottom: 80px; right: 20px; overflow: hidden; border: 1px solid #e2e8f0; grid-template-columns: 250px 1fr; z-index: 10000;">
         
         <!-- Sessions List -->
-        <div style="background: #f8fafc; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+        <div style="background: #f8fafc; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 520px; overflow: hidden;">
             <div style="padding: 15px; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: #1e293b;">
                 Active Sessions
             </div>
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Chat Area -->
-        <div style="display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; flex-direction: column; height: 520px; overflow: hidden;">
             <!-- Header -->
             <div id="chat-header" style="padding: 15px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: white;">
                 <div id="current-visitor-name" style="font-weight: 600; color: #1e293b;">Select a chat</div>
@@ -30,7 +30,7 @@
             </div>
 
             <!-- Messages -->
-            <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 20px; background: #fff;">
+            <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 20px; background: #fff; min-height: 0;">
                 <div style="text-align: center; color: #cbd5e1; margin-top: 100px;">
                     <i class="far fa-comments" style="font-size: 3rem; margin-bottom: 10px;"></i>
                     <p>Select a session to start chatting</p>
