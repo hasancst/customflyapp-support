@@ -89,6 +89,20 @@ let sessionsInterval   = null;
 const STATUS_LABEL = { aktif: 'OPEN', eskalasi: 'ESCALATED', selesai: 'CLOSED' };
 const STATUS_CLASS = { aktif: 'status-aktif', eskalasi: 'status-eskalasi', selesai: 'status-selesai' };
 
+// ── Event delegation for session clicks ──────────────────────────────────────
+document.getElementById('session-list').addEventListener('click', function(e) {
+    const area = e.target.closest('.session-click-area');
+    if (!area) return;
+    const item = area.closest('.session-item');
+    if (!item) return;
+    const id      = parseInt(item.dataset.id);
+    const name    = item.dataset.name;
+    const email   = item.dataset.email;
+    const status  = item.dataset.status;
+    const tiketId = item.dataset.tiket ? parseInt(item.dataset.tiket) : null;
+    selectSession(id, name, email, status, tiketId);
+});
+
 // ── Load active sessions list ─────────────────────────────────────────────────
 async function loadSessions() {
     try {
@@ -102,9 +116,13 @@ async function loadSessions() {
             return;
         }
         list.innerHTML = data.map(s => `
-            <div class="session-item ${s.id == currentSessionId ? 'active' : ''}" id="session-item-${s.id}">
-                <div onclick="selectSession(${s.id}, '${escHtml(s.nama_pengunjung || 'Anonymous')}', '${escHtml(s.email || '')}', '${escHtml(s.status || 'aktif')}', ${s.tiket_id || 'null'})"
-                    style="flex:1; cursor:pointer;">
+            <div class="session-item ${s.id == currentSessionId ? 'active' : ''}" id="session-item-${s.id}"
+                data-id="${s.id}"
+                data-name="${escHtml(s.nama_pengunjung || 'Anonymous').replace(/"/g,'&quot;')}"
+                data-email="${escHtml(s.email || '').replace(/"/g,'&quot;')}"
+                data-status="${s.status || 'aktif'}"
+                data-tiket="${s.tiket_id || ''}">
+                <div class="session-click-area" style="flex:1; cursor:pointer;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                         <span style="font-weight:600;font-size:13px;color:#1e293b;">${escHtml(s.nama_pengunjung || 'Anonymous')}</span>
                         <span class="status-badge ${STATUS_CLASS[s.status] || 'status-aktif'}">${STATUS_LABEL[s.status] || s.status}</span>
