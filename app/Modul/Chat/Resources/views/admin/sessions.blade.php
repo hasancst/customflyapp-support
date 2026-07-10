@@ -169,7 +169,8 @@ async function selectSession(id, name, email, status, tiketId) {
 
     // Mark active in list
     document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    const activeItem = document.getElementById('session-item-' + id);
+    if (activeItem) activeItem.classList.add('active');
 
     await loadMessages();
 
