@@ -13,10 +13,16 @@ class TiketController extends Controller
 {
     public function indeks(Request $request)
     {
-        $query = Tiket::with('kategori');
+        $query = Tiket::with(['tiketKategori.parent']);
 
         if ($request->filled('kategori_id')) {
-            $query->where('category_id', $request->kategori_id);
+            $selectedId = (int) $request->kategori_id;
+
+            // If selecting a parent category, include all its children too
+            $childIds = TiketKategori::where('parent_id', $selectedId)->pluck('id')->toArray();
+            $ids = array_merge([$selectedId], $childIds);
+
+            $query->whereIn('category_id', $ids);
         }
 
         if ($request->filled('cari')) {
@@ -27,9 +33,29 @@ class TiketController extends Controller
         }
 
         $tikets = $query->orderBy('created_at', 'desc')->paginate(20);
-        $categories = TiketKategori::where('aktif', true)->orderBy('urutan')->get();
 
-        return view('tiket::indeks', compact('tikets', 'categories'));
+        // Build ordered category list: parents first, children nested under their parent
+        $parents = TiketKategori::where('aktif', true)
+            ->whereNull('parent_id')
+            ->with(['children' => fn($q) => $q->where('aktif', true)->orderBy('urutan')])
+            ->orderBy('urutan')
+            ->get();
+
+        // Flatten into grouped list for the dropdown
+        $categories = collect();
+        foreach ($parents as $parent) {
+            $categories->push($parent);
+            foreach ($parent->children as $child) {
+                $categories->push($child);
+            }
+        }
+
+        // Preload client app per email (single query)
+        $emails = $tikets->pluck('email')->filter()->unique()->values();
+        $clientApps = \App\Models\Client::whereIn('email', $emails)
+            ->pluck('app', 'email');
+
+        return view('tiket::indeks', compact('tikets', 'categories', 'clientApps'));
     }
 
     public function tambah()
@@ -65,13 +91,15 @@ class TiketController extends Controller
 
     public function detail($id)
     {
-        $tiket = Tiket::with(['kategori', 'lampiran', 'pesans' => function($q) {
+        $tiket = Tiket::with(['tiketKategori', 'lampiran', 'pesans' => function($q) {
             $q->orderBy('created_at', 'asc');
         }])->findOrFail($id);
         
         $categories = TiketKategori::where('aktif', true)->orderBy('urutan')->get();
+        $makros = \App\Modul\Tiket\Model\TiketMakro::where('aktif', true)
+            ->orderBy('urutan')->orderBy('judul')->get(['id', 'judul', 'isi']);
 
-        return view('tiket::detail', compact('tiket', 'categories'));
+        return view('tiket::detail', compact('tiket', 'categories', 'makros'));
     }
 
     public function balas(Request $request, $id)

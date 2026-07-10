@@ -108,15 +108,31 @@ async function loadSessions() {
             return `<div class="admin-session-item"
                 data-session-id="${s.id}"
                 data-name="${(displayName).replace(/"/g,'&quot;')}"
-                style="padding:10px;border-radius:6px;cursor:pointer;margin-bottom:5px;
+                data-status="${s.status || 'aktif'}"
+                data-tiket="${s.tiket_id || ''}"
+                style="padding:10px;border-radius:6px;margin-bottom:5px;
                        background:${isActive ? '#e0f2fe' : hasUnread ? '#FFF7ED' : 'white'};
                        border:1px solid ${isActive ? '#bae6fd' : hasUnread ? '#FED7AA' : 'transparent'};
                        transition:background 0.2s;position:relative;">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div style="font-weight:600;font-size:0.9rem;color:#1e293b;">${displayName}</div>
-                    ${hasUnread ? '<span style="background:#ef4444;color:white;font-size:0.65rem;padding:1px 6px;border-radius:99px;font-weight:700;">NEW</span>' : ''}
+                <div class="session-click-area" style="cursor:pointer;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div style="font-weight:600;font-size:0.9rem;color:#1e293b;">${displayName}</div>
+                        ${hasUnread ? '<span style="background:#ef4444;color:white;font-size:0.65rem;padding:1px 6px;border-radius:99px;font-weight:700;">NEW</span>' : ''}
+                    </div>
+                    <div style="font-size:0.75rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.last_message || '...'}</div>
                 </div>
-                <div style="font-size:0.75rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.last_message || '...'}</div>
+                <div style="display:flex;gap:4px;margin-top:6px;">
+                    ${s.status !== 'selesai' ? `
+                    <button onclick="widgetQuickClose(${s.id}, event)" title="Close chat"
+                        style="padding:3px 9px;background:#fef2f2;color:#ef4444;border:1px solid #fecaca;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">
+                        ✕ Close
+                    </button>` : ''}
+                    ${s.status === 'aktif' && !s.tiket_id ? `
+                    <button onclick="widgetQuickEscalate(${s.id}, event)" title="Create ticket"
+                        style="padding:3px 9px;background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;">
+                        🎫 Ticket
+                    </button>` : ''}
+                </div>
             </div>`;
         }).join('');
 
@@ -124,7 +140,11 @@ async function loadSessions() {
         if (!list._delegated) {
             list._delegated = true;
             list.addEventListener('click', function(e) {
-                const item = e.target.closest('.admin-session-item');
+                // Ignore button clicks — they have their own handlers
+                if (e.target.closest('button')) return;
+                const area = e.target.closest('.session-click-area');
+                if (!area) return;
+                const item = area.closest('.admin-session-item');
                 if (!item) return;
                 const sid  = parseInt(item.dataset.sessionId);
                 const name = item.dataset.name;
@@ -133,6 +153,43 @@ async function loadSessions() {
         }
 
     } catch(e) { console.error('loadSessions error', e); }
+}
+
+async function widgetQuickClose(sessionId, e) {
+    e.stopPropagation();
+    if (!confirm('Close this chat session?')) return;
+    try {
+        await fetch('/admin/chat/api/close', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ session_id: sessionId }),
+        });
+        if (activeSessionId === sessionId) {
+            document.getElementById('chat-input-area').style.display = 'none';
+        }
+        await loadSessions();
+    } catch(err) { alert('Failed to close session.'); }
+}
+
+async function widgetQuickEscalate(sessionId, e) {
+    e.stopPropagation();
+    if (!confirm('Create a support ticket for this chat?')) return;
+    try {
+        const res  = await fetch('/admin/chat/api/escalate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ session_id: sessionId }),
+        });
+        const data = await res.json();
+        if (data.success) await loadSessions();
+        else alert('Failed to create ticket.');
+    } catch(err) { alert('Failed to escalate.'); }
 }
 
 async function selectSession(id, name) {

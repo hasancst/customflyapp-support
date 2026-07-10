@@ -507,6 +507,9 @@
                     <a href="/admin/tiket/kategori" class="nav-item {{ request()->is('admin/tiket/kategori*') ? 'active' : '' }}" style="font-size: 0.9rem;">
                         <i class="fas fa-tags" style="width: 18px;"></i> Categories
                     </a>
+                    <a href="/admin/tiket/makro" class="nav-item {{ request()->is('admin/tiket/makro*') ? 'active' : '' }}" style="font-size: 0.9rem;">
+                        <i class="fas fa-bolt" style="width: 18px;"></i> Macro
+                    </a>
                 </div>
             </div>
             @endif

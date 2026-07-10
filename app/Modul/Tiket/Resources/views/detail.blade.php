@@ -91,7 +91,22 @@
             <form action="/admin/tiket/balas/{{ $tiket->id }}" method="POST">
                 @csrf
                 <h4 style="margin-bottom: 15px;">Reply Ticket</h4>
-                <textarea name="pesan" rows="5" placeholder="Write your reply here..." style="margin-bottom: 15px;"></textarea>
+
+                {{-- Macro picker --}}
+                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;{{ $makros->isEmpty() ? ' display:none;' : '' }}">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: #64748b; white-space: nowrap;">
+                        <i class="fas fa-bolt" style="color: #6366f1;"></i> Macro:
+                    </label>
+                    <select id="macro-picker"
+                        style="flex: 1; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.85rem; background: #f8fafc; color: #475569; cursor: pointer; max-width: 380px;">
+                        <option value="">-- Select a template --</option>
+                        @foreach($makros as $m)
+                            <option value="{{ $m->id }}" data-isi="{{ $m->isi }}">{{ $m->judul }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <textarea id="reply-textarea" name="pesan" rows="5" placeholder="Write your reply here..." style="margin-bottom: 15px;"></textarea>
                 <div style="display: flex; justify-content: flex-end;">
                     <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Send Reply</button>
                 </div>
@@ -118,7 +133,7 @@
 
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px;">Category</label>
-                <div style="font-weight: 600;">{{ $tiket->kategori->nama ?? 'No Category' }}</div>
+                <div style="font-weight: 600;">{{ $tiket->tiketKategori->nama ?? 'No Category' }}</div>
             </div>
 
             <div style="margin-bottom: 30px;">
@@ -158,4 +173,37 @@
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const picker   = document.getElementById('macro-picker');
+    const textarea = document.getElementById('reply-textarea');
+    if (!picker || !textarea) return;
+
+    picker.addEventListener('change', function () {
+        const selected = this.options[this.selectedIndex];
+        const raw = selected.dataset.isi;
+        if (!raw) return;
+
+        // Replace placeholders with real ticket values
+        const name     = {!! json_encode($tiket->nama ?? $tiket->email) !!};
+        const email    = {!! json_encode($tiket->email) !!};
+        const ticketNo = {!! json_encode($tiket->no_tiket) !!};
+
+        const content = raw
+            .replace(/\{\{name\}\}/g,      name)
+            .replace(/\{\{email\}\}/g,     email)
+            .replace(/\{\{ticket_no\}\}/g, ticketNo);
+
+        textarea.value = textarea.value.trim()
+            ? textarea.value + '\n\n' + content
+            : content;
+
+        // Reset picker and focus textarea
+        this.selectedIndex = 0;
+        textarea.focus();
+        textarea.scrollTop = textarea.scrollHeight;
+    });
+});
+</script>
 @endsection

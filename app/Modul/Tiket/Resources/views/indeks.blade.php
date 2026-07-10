@@ -8,6 +8,7 @@
         <h2 style="margin: 0;"><i class="fas fa-ticket-alt"></i> Ticket List</h2>
         <div style="display: flex; gap: 10px;">
             <a href="/admin/tiket/kategori" class="btn" style="background: #64748b;"><i class="fas fa-tags"></i> Manage Categories</a>
+            <a href="/admin/tiket/makro" class="btn" style="background: #6366f1;"><i class="fas fa-bolt"></i> Macro</a>
             <a href="/admin/tiket/tambah" class="btn"><i class="fas fa-plus"></i> Open New Ticket</a>
         </div>
     </div>
@@ -31,9 +32,17 @@
                 <select name="kategori_id" onchange="this.form.submit()" style="width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
                     <option value="">-- All Categories --</option>
                     @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ request('kategori_id') == $cat->id ? 'selected' : '' }}>
-                            {{ $cat->parent_id ? '↳ ' : '' }}{{ $cat->nama }}
-                        </option>
+                        @if(!$cat->parent_id)
+                            <option value="{{ $cat->id }}" {{ request('kategori_id') == $cat->id ? 'selected' : '' }}
+                                style="font-weight: 700; color: #1e293b;">
+                                {{ $cat->nama }}
+                            </option>
+                        @else
+                            <option value="{{ $cat->id }}" {{ request('kategori_id') == $cat->id ? 'selected' : '' }}
+                                style="padding-left: 16px; color: #475569;">
+                                &nbsp;&nbsp;↳ {{ $cat->nama }}
+                            </option>
+                        @endif
                     @endforeach
                 </select>
             </div>
@@ -53,6 +62,8 @@
                     <th style="padding: 15px;">Ticket No.</th>
                     <th style="padding: 15px;">Subject</th>
                     <th style="padding: 15px;">Client</th>
+                    <th style="padding: 15px;">App</th>
+                    <th style="padding: 15px;">Category</th>
                     <th style="padding: 15px;">Priority</th>
                     <th style="padding: 15px;">Status</th>
                     <th style="padding: 15px;">Created</th>
@@ -65,8 +76,28 @@
                     <td style="padding: 15px; font-weight: 700; color: #6366f1;">#{{ $t->no_tiket }}</td>
                     <td style="padding: 15px; font-weight: 600;">{{ $t->judul }}</td>
                     <td style="padding: 15px;">
-                        <div>{{ $t->user->nama ?? $t->email }}</div>
-                        <small style="color: #64748b;">{{ $t->kategori->nama ?? 'No Category' }}</small>
+                        <div style="font-weight: 600;">{{ $t->nama ?? $t->email }}</div>
+                        <small style="color: #94a3b8;">{{ $t->email }}</small>
+                    </td>
+                    <td style="padding: 15px;">
+                        @php $app = $clientApps[$t->email] ?? null; @endphp
+                        @if($app)
+                            <span style="background: #ede9fe; color: #6d28d9; padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: capitalize;">
+                                {{ $app }}
+                            </span>
+                        @else
+                            <span style="color: #cbd5e1; font-size: 0.8rem;">—</span>
+                        @endif
+                    </td>
+                    <td style="padding: 15px;">
+                        @if($t->tiketKategori)
+                            @if($t->tiketKategori->parent_id && $t->tiketKategori->relationLoaded('parent') && $t->tiketKategori->parent)
+                                <span style="font-size:0.75rem;color:#94a3b8;">{{ $t->tiketKategori->parent->nama }}</span><br>
+                            @endif
+                            <span style="font-size:0.85rem;color:#475569;">{{ $t->tiketKategori->nama }}</span>
+                        @else
+                            <span style="color: #cbd5e1; font-size: 0.8rem;">—</span>
+                        @endif
                     </td>
                     <td style="padding: 15px;">
                         @php
@@ -105,7 +136,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="padding: 50px; text-align: center; color: #94a3b8;">
+                    <td colspan="9" style="padding: 50px; text-align: center; color: #94a3b8;">
                         <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
                         No tickets found.
                     </td>

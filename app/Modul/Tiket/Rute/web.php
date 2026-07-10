@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modul\Tiket\Http\Controllers\TiketController;
 use App\Modul\Tiket\Http\Controllers\TiketKategoriController;
+use App\Modul\Tiket\Http\Controllers\TiketMakroController;
 
 Route::prefix('admin/tiket')->middleware(['web', 'auth'])->group(function () {
     Route::get('/', [TiketController::class, 'indeks']);
@@ -18,4 +19,11 @@ Route::prefix('admin/tiket')->middleware(['web', 'auth'])->group(function () {
     Route::post('/kategori', [TiketKategoriController::class, 'store']);
     Route::post('/kategori/update/{id}', [TiketKategoriController::class, 'update']);
     Route::post('/kategori/hapus/{id}', [TiketKategoriController::class, 'delete']);
+
+    // Macro Routes
+    Route::get('/makro', [TiketMakroController::class, 'index']);
+    Route::get('/makro/api', [TiketMakroController::class, 'apiList']);
+    Route::post('/makro', [TiketMakroController::class, 'store']);
+    Route::post('/makro/update/{id}', [TiketMakroController::class, 'update']);
+    Route::post('/makro/hapus/{id}', [TiketMakroController::class, 'delete']);
 });

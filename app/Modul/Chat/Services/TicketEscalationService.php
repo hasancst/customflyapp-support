@@ -26,13 +26,14 @@ class TicketEscalationService
         $transcript = $this->formatChatTranscript($messages);
         
         $ticket = Tiket::create([
-            'judul' => $this->generateTicketTitle($messages),
-            'deskripsi' => $summary . "\n\n--- Transkrip Chat ---\n" . $transcript,
-            'nama' => $session->nama_pengunjung ?? 'Anonymous',
-            'email' => $session->email_pengunjung ?? 'no-email@chat.widget',
-            'prioritas' => $this->determinePriority($messages),
-            'status' => 'terbuka',
-            'kategori' => 'Chat Escalation'
+            'no_tiket'   => 'TKT-' . strtoupper(substr(uniqid(), -6)),
+            'judul'      => $this->generateTicketTitle($messages),
+            'pesan_awal' => $summary . "\n\n--- Transkrip Chat ---\n" . $transcript,
+            'nama'       => $session->nama_pengunjung ?? 'Anonymous',
+            'email'      => $session->email_pengunjung ?? 'no-email@chat.widget',
+            'prioritas'  => $this->determinePriority($messages),
+            'status'     => 'terbuka',
+            'kategori'   => 'Chat Escalation',
         ]);
 
         $session->update([
