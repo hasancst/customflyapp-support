@@ -509,16 +509,44 @@ class ChatWidgetController extends Controller
             ->with(['messages' => function($q) { $q->latest()->limit(1); }])
             ->orderBy('aktivitas_terakhir', 'desc')
             ->get()
-            ->map(fn($s) => [
-                'id'              => $s->id,
-                'nama_pengunjung' => $s->nama_pengunjung ?? 'Anonymous',
-                'email'           => $s->email_pengunjung ?? '',
-                'status'          => $s->status,
-                'tiket_id'        => $s->tiket_id,
-                'last_message'    => $s->messages->first()?->pesan ?? '',
-                'updated_at'      => $s->aktivitas_terakhir,
-            ]);
+            ->map(function($s) {
+                // Derive shop name from email (e.g. "dawn-theme-cst.myshopify.com" from shop_id or email)
+                $shopName = $s->widget?->nama_toko
+                    ?? $this->extractShopName($s->email_pengunjung)
+                    ?? $s->nama_pengunjung
+                    ?? 'Anonymous';
+
+                $lastMsg    = $s->messages->first();
+                $unreadCount = $s->messages()->where('pengirim', 'pengunjung')->count();
+
+                return [
+                    'id'              => $s->id,
+                    'shop_name'       => $shopName,
+                    'nama_pengunjung' => $s->nama_pengunjung ?? 'Anonymous',
+                    'email'           => $s->email_pengunjung ?? '',
+                    'status'          => $s->status,
+                    'tiket_id'        => $s->tiket_id,
+                    'last_message'    => $lastMsg?->pesan ?? '',
+                    'last_message_id' => $lastMsg?->id ?? 0,
+                    'unread_count'    => $unreadCount,
+                    'updated_at'      => $s->aktivitas_terakhir,
+                ];
+            });
 
         return response()->json($sessions);
     }
-}
+
+    /**
+     * Extract shop name from email domain or shop_id
+     * e.g. "dawn-theme-cst.myshopify.com" → "Dawn-theme-cst"
+     */
+    private function extractShopName(?string $email): ?string
+    {
+        if (!$email) return null;
+        // If it looks like a shop domain
+        if (str_contains($email, 'myshopify.com')) {
+            $domain = str_replace('.myshopify.com', '', $email);
+            return ucwords(str_replace('-', ' ', $domain));
+        }
+        return null;
+    }
