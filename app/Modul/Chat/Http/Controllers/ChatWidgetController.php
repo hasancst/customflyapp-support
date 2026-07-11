@@ -43,7 +43,8 @@ class ChatWidgetController extends Controller
 
         // Look for existing resumable session (skip if force_new = true)
         $existing = null;
-        if (!$request->boolean('force_new')) {
+        $forceNew = filter_var($request->input('force_new', false), FILTER_VALIDATE_BOOLEAN);
+        if (!$forceNew) {
             $existing = ChatSession::where('widget_id', $widget->id)
                 ->where('email_pengunjung', $request->visitor_email)
                 ->where(function($q) {
