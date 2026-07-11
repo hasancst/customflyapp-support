@@ -31,6 +31,7 @@ class ChatWidgetController extends Controller
             'widget_key'    => 'required|string',
             'visitor_email' => 'required|email',
             'visitor_name'  => 'nullable|string|max:100',
+            'force_new'     => 'nullable|boolean',
         ]);
 
         $widget = ChatWidget::where('public_key', $request->widget_key)
@@ -40,21 +41,22 @@ class ChatWidgetController extends Controller
             return response()->json(['error' => 'Invalid widget key'], 401);
         }
 
-        // Look for existing resumable session for this visitor+widget
-        // Priority: aktif/eskalasi first, then selesai-with-ticket (show ticket info, no new chat)
-        $existing = ChatSession::where('widget_id', $widget->id)
-            ->where('email_pengunjung', $request->visitor_email)
-            ->where(function($q) {
-                $q->whereIn('status', ['aktif', 'eskalasi'])
-                  ->orWhere(function($q2) {
-                      // Closed session that had a ticket — show ticket ref, don't create new session
-                      $q2->where('status', 'selesai')
-                         ->whereNotNull('tiket_id');
-                  });
-            })
-            ->orderByRaw("CASE status WHEN 'aktif' THEN 1 WHEN 'eskalasi' THEN 2 ELSE 3 END")
-            ->orderBy('aktivitas_terakhir', 'desc')
-            ->first();
+        // Look for existing resumable session (skip if force_new = true)
+        $existing = null;
+        if (!$request->boolean('force_new')) {
+            $existing = ChatSession::where('widget_id', $widget->id)
+                ->where('email_pengunjung', $request->visitor_email)
+                ->where(function($q) {
+                    $q->whereIn('status', ['aktif', 'eskalasi'])
+                      ->orWhere(function($q2) {
+                          $q2->where('status', 'selesai')
+                             ->whereNotNull('tiket_id');
+                      });
+                })
+                ->orderByRaw("CASE status WHEN 'aktif' THEN 1 WHEN 'eskalasi' THEN 2 ELSE 3 END")
+                ->orderBy('aktivitas_terakhir', 'desc')
+                ->first();
+        }
 
         if ($existing) {
             $existing->updateAktivitas();
