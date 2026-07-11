@@ -58,10 +58,10 @@ class AIService
 
         return $articles->map(function($article) use ($query) {
             return [
-                'id' => $article->id,
-                'title' => $article->judul,
-                'content' => $article->konten,
-                'url' => url('/kb/article/' . $article->slug),
+                'id'        => $article->id,
+                'title'     => $article->judul,
+                'slug'      => $article->slug,
+                'content'   => $article->konten,
                 'relevance' => $this->calculateRelevance($query, $article)
             ];
         })->sortByDesc('relevance')->values()->toArray();
@@ -118,21 +118,26 @@ class AIService
     }
 
     /**
-     * Format AI answer
+     * Format AI answer — short excerpt only, article links shown as chips in frontend
      */
     private function formatAnswer(array $kbResult, float $confidence): string
     {
         $content = strip_tags($kbResult['content']);
-        $excerpt = mb_substr($content, 0, 300) . '...';
-        
-        $answer = $excerpt . "\n\n";
-        $answer .= "📚 Sumber: {$kbResult['title']}\n";
-        $answer .= "🔗 Baca selengkapnya: {$kbResult['url']}";
-        
-        if ($confidence < 0.8) {
-            $answer .= "\n\n💡 Jika jawaban ini kurang membantu, saya akan menghubungkan Anda dengan tim support kami.";
+        $excerpt = mb_substr($content, 0, 280);
+        // End at last complete sentence if possible
+        $lastDot = max(strrpos($excerpt, '.'), strrpos($excerpt, '!'), strrpos($excerpt, '?'));
+        if ($lastDot > 150) {
+            $excerpt = mb_substr($excerpt, 0, $lastDot + 1);
+        } else {
+            $excerpt .= '...';
         }
-        
+
+        $answer = $excerpt;
+
+        if ($confidence < 0.8) {
+            $answer .= "\n\n💡 If this doesn't fully answer your question, I can connect you with our support team.";
+        }
+
         return $answer;
     }
 

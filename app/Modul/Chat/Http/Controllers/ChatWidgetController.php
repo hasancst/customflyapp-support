@@ -40,10 +40,19 @@ class ChatWidgetController extends Controller
             return response()->json(['error' => 'Invalid widget key'], 401);
         }
 
-        // Look for existing active/escalated session for this visitor+widget
+        // Look for existing resumable session for this visitor+widget
+        // Priority: aktif/eskalasi first, then selesai-with-ticket (show ticket info, no new chat)
         $existing = ChatSession::where('widget_id', $widget->id)
             ->where('email_pengunjung', $request->visitor_email)
-            ->whereIn('status', ['aktif', 'eskalasi'])
+            ->where(function($q) {
+                $q->whereIn('status', ['aktif', 'eskalasi'])
+                  ->orWhere(function($q2) {
+                      // Closed session that had a ticket — show ticket ref, don't create new session
+                      $q2->where('status', 'selesai')
+                         ->whereNotNull('tiket_id');
+                  });
+            })
+            ->orderByRaw("CASE status WHEN 'aktif' THEN 1 WHEN 'eskalasi' THEN 2 ELSE 3 END")
             ->orderBy('aktivitas_terakhir', 'desc')
             ->first();
 
@@ -59,11 +68,19 @@ class ChatWidgetController extends Controller
                     'timestamp' => $m->created_at->toISOString(),
                 ]);
 
+            // Load ticket number if escalated
+            $noTiket = null;
+            if ($existing->tiket_id) {
+                $tiket = \App\Modul\Tiket\Model\Tiket::find($existing->tiket_id);
+                $noTiket = $tiket?->no_tiket;
+            }
+
             return response()->json([
                 'session_token' => $existing->session_token,
                 'resumed'       => true,
                 'status'        => $existing->status,
                 'tiket_id'      => $existing->tiket_id,
+                'no_tiket'      => $noTiket,
                 'messages'      => $messages,
             ]);
         }
