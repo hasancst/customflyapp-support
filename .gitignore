@@ -17,5 +17,10 @@ auth.json
 /.agent/
 /.gemini/
 /.kiro/
+/.hermes/
+/storage/
+*.sqlite
+*.db
+*.sql
 /database/*.sql
 /docs/superpowers/

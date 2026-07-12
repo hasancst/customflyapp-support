@@ -1,0 +1,30 @@
+# Folder Agen & AI
+.agent/
+.gemini/
+.kiro/
+.hermes/
+
+# Dependensi Proyek
+vendor/
+node_modules/
+
+# Laravel Storage & Cache
+storage/
+bootstrap/cache/
+
+# Files & Logs
+*.log
+*.sqlite
+*.db
+*.sql
+*.key
+.env
+.env.*
+.phpunit.result.cache
+auth.json
+
+# System & OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
