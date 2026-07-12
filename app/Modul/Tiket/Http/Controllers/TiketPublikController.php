@@ -92,7 +92,7 @@ class TiketPublikController extends Controller
      */
     public function show(Request $request, int $id)
     {
-        $tiket = Tiket::with(['lampiran', 'pesans' => fn($q) => $q->orderBy('created_at'), 'kategori'])
+        $tiket = Tiket::with(['lampiran', 'pesans' => fn($q) => $q->orderBy('created_at'), 'tiketKategori'])
             ->where('id', $id)
             ->where('shop_id', $request->header('X-Bridge-Shop'))
             ->firstOrFail();
@@ -121,7 +121,7 @@ class TiketPublikController extends Controller
                 'pesan_awal' => $tiket->pesan_awal,
                 'status'     => $tiket->status,
                 'prioritas'  => $tiket->prioritas,
-                'kategori'   => $tiket->getRelation('kategori')?->nama ?? $tiket->getRawOriginal('kategori'),
+                'kategori'   => $tiket->getRelation('tiketKategori')?->nama ?? $tiket->getRawOriginal('kategori'),
                 'email'      => $tiket->email,
                 'nama'       => $tiket->nama,
                 'created_at' => $tiket->created_at->toISOString(),
