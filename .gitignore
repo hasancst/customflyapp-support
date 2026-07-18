@@ -1,3 +1,5 @@
+.user.ini
+/public/.user.ini
 /vendor/
 /node_modules/
 /.env
