@@ -17,15 +17,16 @@
     <style>
         :root {
             --primary: #4e73df;
-            --primary-light: #f8faff;
-            --bg-body: #f4f7fe;
+            --primary-light: #f8fafc;
+            --bg-body: #f8fafc; /* Slate 50 background for clean, modern workspace */
             --sidebar-bg: #ffffff;
             --card-bg: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --accent: #ebf1ff;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-            --border: #edf2f7;
+            --text-main: #334155; /* Slate 700 main text */
+            --text-muted: #64748b; /* Slate 500 muted text */
+            --accent: #f1f5f9; /* Slate 100 accent */
+            --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --border: #f1f5f9; /* Slate 100 border - extremely premium, light, and clean */
         }
 
         * {
@@ -35,19 +36,24 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             display: flex;
             min-height: 100vh;
             margin: 0;
             padding: 0;
+            font-size: 13px;
+            letter-spacing: -0.01em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
-        /* Sidebar */
+        /* ========== SIDEBAR ========== */
         .sidebar {
-            width: 260px;
-            min-width: 260px;
+            width: 220px;
+            min-width: 220px;
             background: var(--sidebar-bg);
             border-right: 1px solid var(--border);
             display: flex;
@@ -60,23 +66,32 @@
         }
 
         .sidebar-logo {
-            padding: 30px 25px;
+            height: 52px;
+            padding: 0 16px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.5rem;
+            gap: 9px;
+            font-size: 0.8125rem;
             font-weight: 700;
+            color: #1a1a2e;
+            border-bottom: 1px solid #f0f0f0;
+            letter-spacing: -0.02em;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo i {
+            font-size: 0.9rem;
             color: var(--primary);
         }
 
         .sidebar-nav {
             flex: 1;
-            padding: 0 15px;
+            padding: 10px 10px 10px;
             overflow-y: auto;
         }
-        
+
         .sidebar-nav::-webkit-scrollbar {
-            width: 5px;
+            width: 3px;
         }
         .sidebar-nav::-webkit-scrollbar-track {
             background: transparent;
@@ -85,59 +100,134 @@
             background: #e2e8f0;
             border-radius: 20px;
         }
-        .sidebar-nav::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
+
+        /* Section label — clean, no icon, elegant spacing */
+        .nav-header {
+            padding: 24px 12px 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #94a3b8; /* Slate 400 */
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
         }
 
+        .nav-header i {
+            display: none;
+        }
+
+        /* Nav item — Vercel/Notion inspired */
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            color: var(--text-muted);
+            gap: 10px;
+            padding: 8px 12px;
+            color: #475569; /* Slate 600 */
             text-decoration: none;
-            border-radius: 12px;
-            margin-bottom: 5px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            font-weight: 500; /* refined semi-bold feel */
+            font-size: 0.8125rem;
+            letter-spacing: -0.01em;
+            transition: all 0.12s ease-in-out;
+            cursor: pointer;
+            line-height: 1.4;
+            position: relative;
         }
 
         .nav-item i {
-            width: 20px;
-            font-size: 1.1rem;
+            width: 16px;
+            font-size: 0.825rem;
+            text-align: center;
+            flex-shrink: 0;
+            color: #94a3b8; /* Slate 400 */
+            transition: color 0.12s ease;
         }
 
         .nav-item:hover {
-            background: var(--primary-light);
-            color: var(--primary);
+            background: #f1f5f9; /* Slate 100 */
+            color: #0f172a; /* Slate 900 */
         }
 
+        .nav-item:hover i {
+            color: #475569; /* Slate 600 */
+        }
+
+        /* Active state — premium pill */
         .nav-item.active {
-            background: var(--primary);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(78, 115, 223, 0.2);
+            background: #f1f5f9; /* Slate 100 */
+            color: #0f172a; /* Slate 900 */
+            font-weight: 600;
         }
 
-        .nav-header {
-            padding: 25px 15px 10px 15px;
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            opacity: 0.7;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .nav-item.active i {
+            color: var(--primary); /* Keep brand color on active icon */
         }
 
+        /* Submenu — visual guideline like Notion */
+        .submenu {
+            padding-left: 12px;
+            margin-left: 19px;
+            margin-top: 2px;
+            margin-bottom: 4px;
+            border-left: 1.5px solid #e2e8f0; /* Slate 200 guideline */
+        }
+
+        .submenu .nav-item {
+            font-size: 0.775rem;
+            padding: 6px 10px;
+            color: #64748b; /* Slate 500 */
+            font-weight: 450;
+            border-radius: 6px;
+        }
+
+        .submenu .nav-item i {
+            font-size: 0.65rem;
+            width: 13px;
+            color: #94a3b8;
+        }
+
+        .submenu .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+            background: #f1f5f9;
+        }
+
+        .submenu .nav-item:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* Arrow */
+        .arrow-icon {
+            margin-left: auto !important;
+            font-size: 0.55rem !important;
+            width: auto !important;
+            transition: transform 0.2s ease !important;
+            color: #94a3b8 !important;
+        }
+
+        /* Sidebar footer */
         .sidebar-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border);
+            padding: 8px 10px 14px;
+            border-top: 1px solid #f0f0f0;
         }
 
-        /* Main Content */
+        .sidebar-footer .nav-item {
+            color: #ef4444;
+            font-size: 0.8125rem;
+            font-weight: 400;
+        }
+
+        .sidebar-footer .nav-item i {
+            color: #fca5a5;
+        }
+
+        .sidebar-footer .nav-item:hover {
+            background: #fff0f0;
+            color: #c53030;
+        }
+
+        /* ========== MAIN CONTENT ========== */
         .main {
             flex: 1;
             display: flex;
@@ -146,13 +236,13 @@
         }
 
         .header {
-            height: 80px;
+            height: 52px;
             background: #ffffff;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 24px;
             position: sticky;
             top: 0;
             z-index: 5;
@@ -161,124 +251,133 @@
         .header-brand {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .header-brand .dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: #22c55e;
             border-radius: 50%;
+        }
+
+        .header-brand nav {
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
         }
 
         .header-user {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             text-align: right;
         }
 
         .header-user .info h4 {
-            font-size: 0.9rem;
+            font-size: 0.775rem;
             font-weight: 600;
+            color: #1e293b; /* Slate 800 */
+            letter-spacing: -0.010em;
         }
 
         .header-user .info span {
-            font-size: 0.75rem;
+            font-size: 0.675rem;
             color: var(--text-muted);
-            text-transform: uppercase;
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
         }
 
         .content {
-            padding: 40px;
+            padding: 24px 28px;
         }
 
-        /* Responsive Admin */
-        .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--primary);
-            cursor: pointer;
+        /* ========== PAGE HEADER ========== */
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
         }
 
-        @media (max-width: 1024px) {
-            .sidebar {
-                position: fixed;
-                left: -260px;
-                transition: left 0.3s ease;
-                box-shadow: 10px 0 30px rgba(0,0,0,0.1);
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .header {
-                padding: 0 20px;
-            }
-
-            .mobile-toggle {
-                display: block;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .header-user .info {
-                display: none;
-            }
+        .page-header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a202c;
+            letter-spacing: -0.025em;
         }
 
-        @media (max-width: 640px) {
-            .grid-dashboard {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .header-brand nav {
-                display: none !important;
-            }
+        .page-header p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
-        /* UI Elements */
+        /* ========== CARDS ========== */
         .card {
             background: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 12px;
+            padding: 18px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
-            margin-bottom: 30px;
+            margin-bottom: 18px;
         }
 
         .card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
+            font-size: 0.825rem;
+            margin-bottom: 14px;
             font-weight: 600;
+            color: #1a202c;
         }
 
+        /* ========== BUTTONS ========== */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
+            gap: 5px;
+            padding: 7px 14px;
             background: var(--primary);
             color: #ffffff;
             border: none;
-            border-radius: 12px;
-            font-weight: 600;
+            border-radius: 7px;
+            font-weight: 500;
             cursor: pointer;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 0.775rem;
+            transition: filter 0.15s;
+            font-family: inherit;
         }
 
         .btn:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
+            filter: brightness(1.08);
         }
 
+        .btn-sm {
+            padding: 5px 11px;
+            font-size: 0.725rem;
+            border-radius: 6px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+            filter: none;
+        }
+
+        /* ========== FORMS ========== */
         input[type="text"],
         input[type="email"],
         input[type="password"],
@@ -288,31 +387,45 @@
         select,
         textarea {
             width: 100%;
-            padding: 12px 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            padding: 7px 11px;
+            border-radius: 7px;
+            border: 1px solid #dde2e8;
             background-color: #ffffff !important;
             color: var(--text-main);
             font-family: inherit;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 0.775rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.08);
         }
 
-        .badge {
-            padding: 5px 12px;
-            border-radius: 8px;
+        label {
             font-size: 0.75rem;
+            font-weight: 500;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        /* ========== BADGES ========== */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.675rem;
             font-weight: 600;
             background: var(--accent);
             color: var(--primary);
         }
 
+        /* ========== TABLES ========== */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -320,82 +433,169 @@
 
         th {
             text-align: left;
-            padding: 15px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            padding: 9px 13px;
+            font-size: 0.7rem;
+            color: #718096;
             font-weight: 600;
             border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         td {
-            padding: 15px;
+            padding: 10px 13px;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
+            font-size: 0.775rem;
+            color: #374151;
         }
 
-        /* Responsive Table */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #fafbfc;
+        }
+
         .table-container {
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         table {
-            min-width: 800px;
+            min-width: 640px;
         }
 
+        /* ========== ALERTS ========== */
         .alert {
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            background: #dcfce7;
-            color: #166534;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            background: #f0fdf4;
+            color: #15803d;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            font-size: 0.775rem;
+            border: 1px solid #bbf7d0;
         }
 
-        /* Layout Grid */
+        .alert.alert-error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        /* ========== STAT GRID ========== */
         .grid-dashboard {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
+            gap: 14px;
+            margin-bottom: 18px;
         }
 
         .stat-card {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 12px;
+            padding: 16px;
             border: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
             box-shadow: var(--shadow);
         }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1rem;
+            flex-shrink: 0;
         }
 
         .stat-info .label {
-            font-size: 0.8rem;
+            font-size: 0.675rem;
             color: var(--text-muted);
             text-transform: uppercase;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
         }
 
         .stat-info .value {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
+            color: #1a202c;
+            margin-top: 1px;
+            letter-spacing: -0.025em;
+        }
+
+        /* Clock widget */
+        .clock-widget {
+            background: var(--primary);
+            color: #ffffff;
+            padding: 7px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.775rem;
+            font-weight: 600;
+        }
+
+        /* ========== MOBILE ========== */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 6px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -220px;
+                transition: left 0.25s ease;
+                box-shadow: 4px 0 16px rgba(0,0,0,0.08);
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .header {
+                padding: 0 16px;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: 18px 16px;
+            }
+
+            .header-user .info {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .grid-dashboard {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .header-brand nav {
+                display: none !important;
+            }
         }
     </style>
     @yield('styles')
@@ -431,12 +631,12 @@
                     <span style="flex: 1;">News</span>
                     <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/berita*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
-                <div id="berita-submenu" style="display: {{ request()->is('admin/berita*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
-                    <a href="/admin/berita" class="nav-item {{ request()->is('admin/berita') || request()->is('admin/berita/tambah') || request()->is('admin/berita/ubah*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-list" style="width: 18px;"></i> All News
+                <div id="berita-submenu" class="submenu" style="display: {{ request()->is('admin/berita*') ? 'block' : 'none' }}">
+                    <a href="/admin/berita" class="nav-item {{ request()->is('admin/berita') || request()->is('admin/berita/tambah') || request()->is('admin/berita/ubah*') ? 'active' : '' }}">
+                        <i class="fas fa-list"></i> All News
                     </a>
-                    <a href="/admin/berita/kategori" class="nav-item {{ request()->is('admin/berita/kategori*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-folder-open" style="width: 18px;"></i> Categories
+                    <a href="/admin/berita/kategori" class="nav-item {{ request()->is('admin/berita/kategori*') ? 'active' : '' }}">
+                        <i class="fas fa-folder-open"></i> Categories
                     </a>
                 </div>
             </div>
@@ -475,6 +675,12 @@
             {{-- Support Header Section --}}
             <div class="nav-header"><i class="fas fa-life-ring"></i> Support</div>
 
+            @if(in_array('task', array_map('strtolower', $modulAktif)))
+            <a href="/admin/task" class="nav-item {{ request()->is('admin/task*') ? 'active' : '' }}">
+                <i class="fas fa-tasks"></i> Task Management
+            </a>
+            @endif
+
             @if(in_array('knowledgebase', array_map('strtolower', $modulAktif)))
             <div class="nav-item-group">
                 <a href="#" class="nav-item {{ request()->is('admin/kb*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('kb-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
@@ -482,12 +688,12 @@
                     <span style="flex: 1;">Knowledge Base</span>
                     <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/kb*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
-                <div id="kb-submenu" style="display: {{ request()->is('admin/kb*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
-                    <a href="/admin/kb/article" class="nav-item {{ request()->is('admin/kb/article*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-book" style="width: 18px;"></i> Articles
+                <div id="kb-submenu" class="submenu" style="display: {{ request()->is('admin/kb*') ? 'block' : 'none' }}">
+                    <a href="/admin/kb/article" class="nav-item {{ request()->is('admin/kb/article*') ? 'active' : '' }}">
+                        <i class="fas fa-book"></i> Articles
                     </a>
-                    <a href="/admin/kb/category" class="nav-item {{ request()->is('admin/kb/category*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-folder-open" style="width: 18px;"></i> Categories
+                    <a href="/admin/kb/category" class="nav-item {{ request()->is('admin/kb/category*') ? 'active' : '' }}">
+                        <i class="fas fa-folder-open"></i> Categories
                     </a>
                 </div>
             </div>
@@ -500,15 +706,15 @@
                     <span style="flex: 1;">Support Tickets</span>
                     <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/tiket*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
-                <div id="tiket-submenu" style="display: {{ request()->is('admin/tiket*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
-                    <a href="/admin/tiket" class="nav-item {{ request()->is('admin/tiket') || request()->is('admin/tiket/tambah') || request()->is('admin/tiket/detail*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-list" style="width: 18px;"></i> All Tickets
+                <div id="tiket-submenu" class="submenu" style="display: {{ request()->is('admin/tiket*') ? 'block' : 'none' }}">
+                    <a href="/admin/tiket" class="nav-item {{ request()->is('admin/tiket') || request()->is('admin/tiket/tambah') || request()->is('admin/tiket/detail*') ? 'active' : '' }}">
+                        <i class="fas fa-list"></i> All Tickets
                     </a>
-                    <a href="/admin/tiket/kategori" class="nav-item {{ request()->is('admin/tiket/kategori*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-tags" style="width: 18px;"></i> Categories
+                    <a href="/admin/tiket/kategori" class="nav-item {{ request()->is('admin/tiket/kategori*') ? 'active' : '' }}">
+                        <i class="fas fa-tags"></i> Categories
                     </a>
-                    <a href="/admin/tiket/makro" class="nav-item {{ request()->is('admin/tiket/makro*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-bolt" style="width: 18px;"></i> Macro
+                    <a href="/admin/tiket/makro" class="nav-item {{ request()->is('admin/tiket/makro*') ? 'active' : '' }}">
+                        <i class="fas fa-bolt"></i> Macro
                     </a>
                 </div>
             </div>
@@ -521,12 +727,12 @@
                     <span style="flex: 1;">Chat Widget</span>
                     <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/chat*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
-                <div id="chat-submenu" style="display: {{ request()->is('admin/chat*') ? 'block' : 'none' }}; padding-left: 15px; overflow: hidden; transition: all 0.3s;">
-                    <a href="/admin/chat" class="nav-item {{ request()->is('admin/chat') && !request()->is('admin/chat/sessions') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-cog" style="width: 18px;"></i> Widgets
+                <div id="chat-submenu" class="submenu" style="display: {{ request()->is('admin/chat*') ? 'block' : 'none' }}">
+                    <a href="/admin/chat" class="nav-item {{ request()->is('admin/chat') && !request()->is('admin/chat/sessions') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i> Widgets
                     </a>
-                    <a href="/admin/chat/sessions" class="nav-item {{ request()->is('admin/chat/sessions*') ? 'active' : '' }}" style="font-size: 0.9rem;">
-                        <i class="fas fa-history" style="width: 18px;"></i> Sessions
+                    <a href="/admin/chat/sessions" class="nav-item {{ request()->is('admin/chat/sessions*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i> Sessions
                     </a>
                 </div>
             </div>
@@ -569,8 +775,8 @@
         <div class="sidebar-footer">
             <form action="/keluar" method="POST" style="width: 100%;">
                 @csrf
-                <button type="submit" class="nav-item" style="color: #ef4444; width: 100%; border: none; background: none; text-align: left; font-family: inherit; font-size: inherit; cursor: pointer;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <button type="submit" class="nav-item" style="width: 100%; border: none; background: none; text-align: left; font-family: inherit; cursor: pointer; color: #e53e3e;">
+                    <i class="fas fa-sign-out-alt" style="color: #e53e3e;"></i> Logout
                 </button>
             </form>
         </div>
@@ -583,30 +789,29 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="dot"></div>
-                <nav style="font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px;">
-                    <span style="color: var(--text-muted);">Admin</span>
+                <nav>
+                    <span style="color: var(--text-muted); font-size: 0.725rem;">Admin</span>
                     @php 
                         $segments = request()->segments();
-                        $breadcrumb = '';
                     @endphp
                     @foreach($segments as $segment)
                         @if($segment != 'admin')
-                            <i class="fas fa-chevron-right" style="font-size: 0.7rem; color: var(--text-muted);"></i>
-                            <span style="color: var(--text-main); font-weight: 600;">{{ ucfirst($segment) }}</span>
+                            <i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #cbd5e0; margin: 0 3px;"></i>
+                            <span style="color: #374151; font-weight: 600; font-size: 0.725rem;">{{ ucfirst($segment) }}</span>
                         @endif
                     @endforeach
                 </nav>
             </div>
 
             <div class="header-user">
-                <a href="/" target="_blank" title="Lihat Website" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #f8fafc; color: var(--text-muted); text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='var(--primary)'; this.style.color='#fff';" onmouseout="this.style.background='#f8fafc'; this.style.color='var(--text-muted)';">
+                <a href="/" target="_blank" title="Lihat Website" style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px; background: #f5f7fa; color: var(--text-muted); text-decoration: none; transition: all 0.15s; font-size: 0.775rem;" onmouseover="this.style.background='var(--primary)'; this.style.color='#fff';" onmouseout="this.style.background='#f5f7fa'; this.style.color='var(--text-muted)';">
                     <i class="fas fa-globe"></i>
                 </a>
                 <div class="info">
-                    <h4>Hi {{ auth()->user()?->nama ?? 'Administrator' }}</h4>
+                    <h4>{{ auth()->user()?->nama ?? 'Administrator' }}</h4>
                     <span>{{ auth()->user()?->email }}</span>
                 </div>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()?->nama ?? 'Administrator') }}&background=4e73df&color=fff" alt="Avatar" style="width: 45px; height: 45px; border-radius: 12px;">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()?->nama ?? 'Administrator') }}&background=4e73df&color=fff&size=64" alt="Avatar" style="width: 30px; height: 30px; border-radius: 7px;">
             </div>
         </header>
 
@@ -618,19 +823,19 @@
             @endif
             
             @if(session('error'))
-                <div class="alert" style="background: #fef2f2; color: #991b1b;">
+                <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
                 </div>
             @endif
 
-            <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div style="margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h1 style="font-size: 1.8rem; font-weight: 700;">@yield('judul')</h1>
-                    <p style="color: var(--text-muted);">Selamat pagi, {{ auth()->user()?->nama ?? 'Administrator' }}. Berikut ringkasan sistem hari ini.</p>
+                    <h1 style="font-size: 1.15rem; font-weight: 700; color: #1a202c; letter-spacing: -0.02em;">@yield('judul')</h1>
+                    <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 2px;">Selamat pagi, {{ auth()->user()?->nama ?? 'Administrator' }}.</p>
                 </div>
-                <div style="background: var(--primary); color: #ffffff; padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
-                    <i class="far fa-clock"></i>
-                    <span id="realtime-clock" style="font-weight: 600;">{{ now()->format('H.i.s') }}</span>
+                <div class="clock-widget">
+                    <i class="far fa-clock" style="font-size: 0.75rem;"></i>
+                    <span id="realtime-clock">{{ now()->format('H.i.s') }}</span>
                 </div>
             </div>
 
