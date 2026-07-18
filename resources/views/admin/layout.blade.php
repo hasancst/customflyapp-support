@@ -611,14 +611,15 @@
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
 
-            {{-- Content Header --}}
-            <div class="nav-header"><i class="fas fa-layer-group"></i> Content CMS</div>
-
             @if(in_array('statistik', array_map('strtolower', $modulAktif)))
             <a href="/admin/statistik" class="nav-item {{ request()->is('admin/statistik*') ? 'active' : '' }}">
                 <i class="fas fa-chart-line"></i> Statistics
             </a>
             @endif
+
+            {{-- Content Group --}}
+            <div class="nav-header">Content</div>
+
             @if(in_array('artikel', array_map('strtolower', $modulAktif)))
             <a href="/admin/artikel" class="nav-item {{ request()->is('admin/artikel*') ? 'active' : '' }}">
                 <i class="fas fa-file-alt"></i> Articles
@@ -640,11 +641,6 @@
                     </a>
                 </div>
             </div>
-            @endif
-            @if(in_array('iklan', array_map('strtolower', $modulAktif)))
-            <a href="/admin/iklan" class="nav-item {{ request()->is('admin/iklan*') ? 'active' : '' }}">
-                <i class="fas fa-ad"></i> Ads
-            </a>
             @endif
             @if(in_array('video', array_map('strtolower', $modulAktif)))
             <a href="/admin/video" class="nav-item {{ request()->is('admin/video*') ? 'active' : '' }}">
@@ -671,34 +667,25 @@
                 <i class="fas fa-concierge-bell"></i> Services
             </a>
             @endif
-
-            {{-- Support Header Section --}}
-            <div class="nav-header"><i class="fas fa-life-ring"></i> Support</div>
-
-            @if(in_array('task', array_map('strtolower', $modulAktif)))
-            <a href="/admin/task" class="nav-item {{ request()->is('admin/task*') ? 'active' : '' }}">
-                <i class="fas fa-tasks"></i> Task Management
+            @if(in_array('iklan', array_map('strtolower', $modulAktif)))
+            <a href="/admin/iklan" class="nav-item {{ request()->is('admin/iklan*') ? 'active' : '' }}">
+                <i class="fas fa-ad"></i> Ads
             </a>
             @endif
 
-            @if(in_array('knowledgebase', array_map('strtolower', $modulAktif)))
-            <div class="nav-item-group">
-                <a href="#" class="nav-item {{ request()->is('admin/kb*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('kb-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
-                    <i class="fas fa-book-reader"></i>
-                    <span style="flex: 1;">Knowledge Base</span>
-                    <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/kb*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
-                </a>
-                <div id="kb-submenu" class="submenu" style="display: {{ request()->is('admin/kb*') ? 'block' : 'none' }}">
-                    <a href="/admin/kb/article" class="nav-item {{ request()->is('admin/kb/article*') ? 'active' : '' }}">
-                        <i class="fas fa-book"></i> Articles
-                    </a>
-                    <a href="/admin/kb/category" class="nav-item {{ request()->is('admin/kb/category*') ? 'active' : '' }}">
-                        <i class="fas fa-folder-open"></i> Categories
-                    </a>
-                </div>
-            </div>
-            @endif
+            {{-- Engagement Group --}}
+            <div class="nav-header">Engagement</div>
 
+            @if(in_array('kontak', array_map('strtolower', $modulAktif)))
+            <a href="/admin/kontak" class="nav-item {{ request()->is('admin/kontak*') ? 'active' : '' }}">
+                <i class="fas fa-envelope"></i> Contact Messages
+            </a>
+            @endif
+            @if(in_array('komentar', array_map('strtolower', $modulAktif)))
+            <a href="/admin/komentar" class="nav-item {{ request()->is('admin/komentar*') ? 'active' : '' }}">
+                <i class="fas fa-comment-dots"></i> Comments
+            </a>
+            @endif
             @if(in_array('tiket', array_map('strtolower', $modulAktif)))
             <div class="nav-item-group">
                 <a href="#" class="nav-item {{ request()->is('admin/tiket*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('tiket-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
@@ -719,7 +706,6 @@
                 </div>
             </div>
             @endif
-
             @if(in_array('chat', array_map('strtolower', $modulAktif)))
             <div class="nav-item-group">
                 <a href="#" class="nav-item {{ request()->is('admin/chat*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('chat-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
@@ -737,25 +723,42 @@
                 </div>
             </div>
             @endif
-            {{-- System Header --}}
-            <div class="nav-header"><i class="fas fa-cogs"></i> System Config</div>
+
+            {{-- Operations Group --}}
+            <div class="nav-header">Operations</div>
+
+            @if(in_array('task', array_map('strtolower', $modulAktif)))
+            <a href="/admin/task" class="nav-item {{ request()->is('admin/task*') ? 'active' : '' }}">
+                <i class="fas fa-tasks"></i> Task Management
+            </a>
+            @endif
+            @if(in_array('knowledgebase', array_map('strtolower', $modulAktif)))
+            <div class="nav-item-group">
+                <a href="#" class="nav-item {{ request()->is('admin/kb*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('kb-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
+                    <i class="fas fa-book-reader"></i>
+                    <span style="flex: 1;">Knowledge Base</span>
+                    <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/kb*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
+                </a>
+                <div id="kb-submenu" class="submenu" style="display: {{ request()->is('admin/kb*') ? 'block' : 'none' }}">
+                    <a href="/admin/kb/article" class="nav-item {{ request()->is('admin/kb/article*') ? 'active' : '' }}">
+                        <i class="fas fa-book"></i> Articles
+                    </a>
+                    <a href="/admin/kb/category" class="nav-item {{ request()->is('admin/kb/category*') ? 'active' : '' }}">
+                        <i class="fas fa-folder-open"></i> Categories
+                    </a>
+                </div>
+            </div>
+            @endif
+
+            {{-- System Group --}}
+            <div class="nav-header">System</div>
 
             <a href="/admin/modul" class="nav-item {{ request()->is('admin/modul*') ? 'active' : '' }}">
                 <i class="fas fa-cubes"></i> Modules
             </a>
-            @if(in_array('kontak', array_map('strtolower', $modulAktif)))
-            <a href="/admin/kontak" class="nav-item {{ request()->is('admin/kontak*') ? 'active' : '' }}">
-                <i class="fas fa-envelope"></i> Contact Messages
-            </a>
-            @endif
-            @if(in_array('komentar', array_map('strtolower', $modulAktif)))
-            <a href="/admin/komentar" class="nav-item {{ request()->is('admin/komentar*') ? 'active' : '' }}">
-                <i class="fas fa-comments"></i> Comments
-            </a>
-            @endif
             @if(in_array('menu', array_map('strtolower', $modulAktif)))
             <a href="/admin/menu" class="nav-item {{ request()->is('admin/menu*') ? 'active' : '' }}">
-                <i class="fas fa-list"></i> Menus
+                <i class="fas fa-bars"></i> Menus
             </a>
             @endif
             <a href="/admin/tema" class="nav-item {{ request()->is('admin/tema*') ? 'active' : '' }}">
