@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balasan Tiket</title>
+    <title>{{ !empty($isForCustomer) ? 'Support Ticket Reply' : 'New Ticket Reply' }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -39,15 +39,15 @@
             font-weight: 600;
             margin-right: 8px;
         }
-        .badge-tinggi {
+        .badge-tinggi, .badge-high {
             background-color: #FEE2E2;
             color: #991B1B;
         }
-        .badge-sedang {
+        .badge-sedang, .badge-medium {
             background-color: #FEF3C7;
             color: #92400E;
         }
-        .badge-rendah {
+        .badge-rendah, .badge-low {
             background-color: #DBEAFE;
             color: #1E40AF;
         }
@@ -143,52 +143,59 @@
     </style>
 </head>
 <body>
+    @php
+        $priorityMap = ['rendah' => 'Low', 'sedang' => 'Medium', 'tinggi' => 'High'];
+        $statusMap = ['terbuka' => 'Open', 'proses' => 'In Progress', 'selesai' => 'Resolved', 'ditutup' => 'Closed'];
+        $priorityLabel = $priorityMap[$tiket->prioritas] ?? ucfirst($tiket->prioritas);
+        $statusLabel = $statusMap[$tiket->status] ?? ucfirst($tiket->status);
+    @endphp
+
     <div class="container">
         <div class="header">
-            <h1>💬 {{ !empty($isForCustomer) ? 'Balasan dari Tim Support' : 'Balasan Baru pada Tiket' }}</h1>
+            <h1>💬 {{ !empty($isForCustomer) ? 'Reply from Support Team' : 'New Ticket Reply' }}</h1>
         </div>
 
         @if(!empty($isForCustomer))
-            <p>Halo <strong>{{ $tiket->nama ?? 'Pelanggan' }}</strong>,</p>
-            <p>Tim support kami telah memberikan balasan untuk tiket Anda:</p>
+            <p>Hello <strong>{{ $tiket->nama ?? 'Customer' }}</strong>,</p>
+            <p>Our support team has posted a reply to your ticket:</p>
         @else
-            <p>Halo Admin,</p>
-            <p>Ada balasan baru dari pelanggan pada tiket berikut:</p>
+            <p>Hello Admin,</p>
+            <p>There is a new reply from the customer on the following ticket:</p>
         @endif
 
         <div class="info-row">
-            <div class="info-label">Nomor Tiket</div>
+            <div class="info-label">Ticket ID</div>
             <div class="info-value"><strong>{{ $tiket->no_tiket }}</strong></div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Judul</div>
+            <div class="info-label">Subject</div>
             <div class="info-value">{{ $tiket->judul }}</div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Status & Prioritas</div>
+            <div class="info-label">Status & Priority</div>
             <div class="info-value">
-                <span class="badge badge-status">{{ ucfirst($tiket->status) }}</span>
-                <span class="badge badge-{{ $tiket->prioritas }}">{{ ucfirst($tiket->prioritas) }}</span>
+                <span class="badge badge-status">{{ $statusLabel }}</span>
+                <span class="badge badge-{{ $tiket->prioritas }}">{{ $priorityLabel }}</span>
             </div>
         </div>
 
         <div class="pesan-box">
-            <h3>Isi Balasan:</h3>
+            <h3>Message:</h3>
             <div class="pesan-content">{{ $pesan->pesan }}</div>
             <div class="pesan-meta">
                 <span class="badge {{ $pesan->is_admin ? 'badge-admin' : 'badge-customer' }}">
-                    {{ $pesan->is_admin ? 'Tim Support' : 'Pelanggan' }}
+                    {{ $pesan->is_admin ? 'Support Team' : 'Customer' }}
                 </span>
                 <strong>{{ $pesan->nama_pengirim }}</strong> • 
-                {{ $pesan->created_at->format('d/m/Y H:i') }} WIB
+                {{ $pesan->created_at->format('M d, Y H:i') }} UTC
             </div>
         </div>
 
         @if(empty($isForCustomer))
         <div class="context-box">
-            <h4>Informasi Customer:</h4>
+            <h4>Customer Information:</h4>
             <div style="color: #374151;">
                 <strong>{{ $tiket->nama ?? $tiket->email }}</strong><br>
                 <small style="color: #6B7280;">{{ $tiket->email }}</small>
@@ -200,20 +207,20 @@
 
         <div style="text-align: center;">
             <a href="{{ url('/admin/tiket/detail/' . $tiket->id) }}" class="button">
-                Lihat & Balas Tiket →
+                View & Reply Ticket →
             </a>
         </div>
         @else
         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px; margin-top: 15px; color: #166534; font-size: 13px;">
-            💡 <strong>Info:</strong> Anda dapat melanjutkan percakapan ini langsung melalui antarmuka support/Shopify App kami pada tiket <strong>{{ $tiket->no_tiket }}</strong>.
+            💡 <strong>Note:</strong> You can continue this conversation directly through our support interface or Shopify App on ticket <strong>{{ $tiket->no_tiket }}</strong>.
         </div>
         @endif
 
         <div class="footer">
-            <p>Email ini dikirim secara otomatis dari sistem tiket.<br>
-            Harap jangan balas email ini.</p>
+            <p>This is an automated notification from the support system.<br>
+            Please do not reply directly to this email address.</p>
             <p style="margin-top: 10px;">
-                <small>Balasan diterima pada: {{ $pesan->created_at->format('d/m/Y H:i') }} WIB</small>
+                <small>Reply received at: {{ $pesan->created_at->format('M d, Y H:i') }} UTC</small>
             </p>
         </div>
     </div>

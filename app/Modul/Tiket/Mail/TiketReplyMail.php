@@ -33,7 +33,7 @@ class TiketReplyMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $prefix = $this->isForCustomer ? 'Balasan Tim Support' : 'Balasan Baru dari Pelanggan';
+        $prefix = $this->isForCustomer ? 'Support Team Reply' : 'New Customer Reply';
         return new Envelope(
             subject: "[#{$this->tiket->no_tiket}] {$prefix}: {$this->tiket->judul}",
         );

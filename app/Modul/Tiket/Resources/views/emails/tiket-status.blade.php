@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Status Tiket</title>
+    <title>Ticket Status Updated</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -89,6 +89,9 @@
             margin: 20px 0;
             text-align: center;
         }
+        .button:hover {
+            background-color: #0369a1;
+        }
         .footer {
             margin-top: 30px;
             padding-top: 20px;
@@ -100,49 +103,55 @@
     </style>
 </head>
 <body>
+    @php
+        $statusMap = ['terbuka' => 'Open', 'proses' => 'In Progress', 'selesai' => 'Resolved', 'ditutup' => 'Closed'];
+        $oldStatusLabel = $statusMap[$statusLama] ?? ucfirst($statusLama);
+        $newStatusLabel = $statusMap[$statusBaru] ?? ucfirst($statusBaru);
+    @endphp
+
     <div class="container">
         <div class="header">
-            <h1>🔄 Status Tiket Telah Diperbarui</h1>
+            <h1>🔄 Ticket Status Updated</h1>
         </div>
 
         @if(!empty($isForCustomer))
-            <p>Halo <strong>{{ $tiket->nama ?? 'Pelanggan' }}</strong>,</p>
-            <p>Status tiket Anda dengan nomor <strong>{{ $tiket->no_tiket }}</strong> telah diperbarui:</p>
+            <p>Hello <strong>{{ $tiket->nama ?? 'Customer' }}</strong>,</p>
+            <p>The status of your ticket <strong>{{ $tiket->no_tiket }}</strong> has been updated:</p>
         @else
-            <p>Halo Admin,</p>
-            <p>Status tiket berikut telah diperbarui:</p>
+            <p>Hello Admin,</p>
+            <p>The status of the following ticket has been updated:</p>
         @endif
 
         <div class="status-card">
-            <span class="status-badge status-{{ $statusLama }}">{{ ucfirst($statusLama) }}</span>
+            <span class="status-badge status-{{ $statusLama }}">{{ $oldStatusLabel }}</span>
             <span class="arrow">➔</span>
-            <span class="status-badge status-{{ $statusBaru }}">{{ ucfirst($statusBaru) }}</span>
+            <span class="status-badge status-{{ $statusBaru }}">{{ $newStatusLabel }}</span>
             <p style="margin: 10px 0 0 0; color: #64748b; font-size: 13px;">
                 @if($statusBaru === 'proses')
-                    Tiket sedang ditinjau dan ditangani oleh tim teknis kami.
+                    Your ticket is being reviewed and processed by our technical support team.
                 @elseif($statusBaru === 'selesai')
-                    Tiket telah diselesaikan. Silakan beri tahu kami jika Anda masih memerlukan bantuan.
+                    Your ticket has been marked as resolved. Please let us know if you still need assistance.
                 @elseif($statusBaru === 'ditutup')
-                    Tiket telah ditutup.
+                    This ticket is now closed.
                 @else
-                    Tiket berstatus terbuka dan menunggu antrean tindak lanjut.
+                    Your ticket is open and queued for review.
                 @endif
             </p>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Nomor Tiket</div>
+            <div class="info-label">Ticket ID</div>
             <div class="info-value"><strong>{{ $tiket->no_tiket }}</strong></div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Judul Tiket</div>
+            <div class="info-label">Subject</div>
             <div class="info-value">{{ $tiket->judul }}</div>
         </div>
 
         @if($tiket->tiketKategori)
         <div class="info-row">
-            <div class="info-label">Kategori</div>
+            <div class="info-label">Category</div>
             <div class="info-value">
                 @if($tiket->tiketKategori->parent)
                     {{ $tiket->tiketKategori->parent->nama }} › 
@@ -155,20 +164,20 @@
         @if(empty($isForCustomer))
         <div style="text-align: center;">
             <a href="{{ url('/admin/tiket/detail/' . $tiket->id) }}" class="button">
-                Lihat Detail Tiket →
+                View Ticket Details →
             </a>
         </div>
         @else
         <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 12px; margin-top: 15px; color: #0369a1; font-size: 13px;">
-            💡 <strong>Info:</strong> Anda dapat memantau atau merespons tiket ini langsung melalui aplikasi support / Shopify App kami.
+            💡 <strong>Note:</strong> You can track or respond to this ticket anytime through our support app.
         </div>
         @endif
 
         <div class="footer">
-            <p>Email ini dikirim secara otomatis dari sistem tiket.<br>
-            Harap jangan balas email ini.</p>
+            <p>This is an automated notification from the support system.<br>
+            Please do not reply directly to this email address.</p>
             <p style="margin-top: 10px;">
-                <small>Waktu update: {{ now()->format('d/m/Y H:i') }} WIB</small>
+                <small>Updated at: {{ now()->format('M d, Y H:i') }} UTC</small>
             </p>
         </div>
     </div>

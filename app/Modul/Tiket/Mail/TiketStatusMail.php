@@ -34,8 +34,10 @@ class TiketStatusMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $statusMap = ['terbuka' => 'Open', 'proses' => 'In Progress', 'selesai' => 'Resolved', 'ditutup' => 'Closed'];
+        $statusLabel = $statusMap[$this->statusBaru] ?? ucfirst($this->statusBaru);
         return new Envelope(
-            subject: "[#{$this->tiket->no_tiket}] Status Tiket Diperbarui: " . ucfirst($this->statusBaru) . " - {$this->tiket->judul}",
+            subject: "[#{$this->tiket->no_tiket}] Ticket Status Updated: {$statusLabel} - {$this->tiket->judul}",
         );
     }
 

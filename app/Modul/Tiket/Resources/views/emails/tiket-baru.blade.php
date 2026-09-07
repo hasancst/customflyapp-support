@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiket Baru</title>
+    <title>{{ !empty($isForCustomer) ? 'Ticket Confirmation' : 'New Support Ticket' }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -29,7 +29,7 @@
         }
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
         }
         .badge {
             display: inline-block;
@@ -39,15 +39,15 @@
             font-weight: 600;
             margin-right: 8px;
         }
-        .badge-tinggi {
+        .badge-tinggi, .badge-high {
             background-color: #FEE2E2;
             color: #991B1B;
         }
-        .badge-sedang {
+        .badge-sedang, .badge-medium {
             background-color: #FEF3C7;
             color: #92400E;
         }
-        .badge-rendah {
+        .badge-rendah, .badge-low {
             background-color: #DBEAFE;
             color: #1E40AF;
         }
@@ -116,40 +116,47 @@
     </style>
 </head>
 <body>
+    @php
+        $priorityMap = ['rendah' => 'Low', 'sedang' => 'Medium', 'tinggi' => 'High'];
+        $statusMap = ['terbuka' => 'Open', 'proses' => 'In Progress', 'selesai' => 'Resolved', 'ditutup' => 'Closed'];
+        $priorityLabel = $priorityMap[$tiket->prioritas] ?? ucfirst($tiket->prioritas);
+        $statusLabel = $statusMap[$tiket->status] ?? ucfirst($tiket->status);
+    @endphp
+
     <div class="container">
         <div class="header" style="{{ !empty($isForCustomer) ? 'background-color: #2563eb;' : 'background-color: #4F46E5;' }}">
-            <h1>🎫 {{ !empty($isForCustomer) ? 'Tiket Anda Berhasil Diterima' : 'Tiket Baru Masuk' }}</h1>
+            <h1>🎫 {{ !empty($isForCustomer) ? 'Ticket Received' : 'New Support Ticket' }}</h1>
         </div>
 
         @if(!empty($isForCustomer))
-            <p>Halo <strong>{{ $tiket->nama ?? 'Pelanggan' }}</strong>,</p>
-            <p>Terima kasih telah menghubungi kami. Tiket Anda telah berhasil dibuat dan diterima oleh tim support kami. Tim kami akan segera meninjau dan merespons pertanyaan atau kendala Anda.</p>
+            <p>Hello <strong>{{ $tiket->nama ?? 'Customer' }}</strong>,</p>
+            <p>Thank you for reaching out to us. We have received your support request. Our team will review your inquiry and get back to you as soon as possible.</p>
         @else
-            <p>Halo Admin,</p>
-            <p>Ada tiket baru yang memerlukan perhatian Anda:</p>
+            <p>Hello Admin,</p>
+            <p>A new support ticket has been submitted and requires your attention:</p>
         @endif
 
         <div class="info-row">
-            <div class="info-label">Nomor Tiket</div>
+            <div class="info-label">Ticket ID</div>
             <div class="info-value"><strong>{{ $tiket->no_tiket }}</strong></div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Judul</div>
+            <div class="info-label">Subject</div>
             <div class="info-value">{{ $tiket->judul }}</div>
         </div>
 
         <div class="info-row">
-            <div class="info-label">Status & Prioritas</div>
+            <div class="info-label">Status & Priority</div>
             <div class="info-value">
-                <span class="badge badge-status">{{ ucfirst($tiket->status) }}</span>
-                <span class="badge badge-{{ $tiket->prioritas }}">{{ ucfirst($tiket->prioritas) }}</span>
+                <span class="badge badge-status">{{ $statusLabel }}</span>
+                <span class="badge badge-{{ $tiket->prioritas }}">{{ $priorityLabel }}</span>
             </div>
         </div>
 
         @if($tiket->tiketKategori)
         <div class="info-row">
-            <div class="info-label">Kategori</div>
+            <div class="info-label">Category</div>
             <div class="info-value">
                 @if($tiket->tiketKategori->parent)
                     {{ $tiket->tiketKategori->parent->nama }} › 
@@ -160,7 +167,7 @@
         @endif
 
         <div class="info-row">
-            <div class="info-label">{{ !empty($isForCustomer) ? 'Pembuat Tiket' : 'Dari' }}</div>
+            <div class="info-label">{{ !empty($isForCustomer) ? 'Requester' : 'From' }}</div>
             <div class="info-value">
                 {{ $tiket->nama ?? $tiket->email }}<br>
                 <small style="color: #6B7280;">{{ $tiket->email }}</small>
@@ -171,27 +178,27 @@
         </div>
 
         <div class="pesan-box">
-            <h3>Pesan:</h3>
+            <h3>Initial Message:</h3>
             <div class="pesan-content">{{ $tiket->pesan_awal }}</div>
         </div>
 
         @if(empty($isForCustomer))
         <div style="text-align: center;">
             <a href="{{ url('/admin/tiket/detail/' . $tiket->id) }}" class="button">
-                Lihat Detail Tiket →
+                View Ticket Details →
             </a>
         </div>
         @else
         <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 12px; margin-top: 15px; color: #0369a1; font-size: 13px;">
-            💡 <strong>Info:</strong> Anda dapat memantau atau membalas tiket ini langsung melalui aplikasi support kami dengan menyebutkan nomor tiket <strong>{{ $tiket->no_tiket }}</strong>.
+            💡 <strong>Note:</strong> You can track or reply to this ticket anytime through our support app by referencing ticket number <strong>{{ $tiket->no_tiket }}</strong>.
         </div>
         @endif
 
         <div class="footer">
-            <p>Email ini dikirim secara otomatis dari sistem tiket.<br>
-            Harap jangan balas email ini.</p>
+            <p>This is an automated notification from the support system.<br>
+            Please do not reply directly to this email address.</p>
             <p style="margin-top: 10px;">
-                <small>Dibuat pada: {{ $tiket->created_at->format('d/m/Y H:i') }} WIB</small>
+                <small>Created at: {{ $tiket->created_at->format('M d, Y H:i') }} UTC</small>
             </p>
         </div>
     </div>

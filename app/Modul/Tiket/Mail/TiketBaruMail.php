@@ -30,7 +30,7 @@ class TiketBaruMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $prefix = $this->isForCustomer ? 'Tiket Diterima' : 'Tiket Baru Masuk';
+        $prefix = $this->isForCustomer ? 'Ticket Received' : 'New Support Ticket';
         return new Envelope(
             subject: "[#{$this->tiket->no_tiket}] {$prefix}: {$this->tiket->judul}",
         );
