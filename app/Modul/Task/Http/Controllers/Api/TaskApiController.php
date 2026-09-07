@@ -21,7 +21,8 @@ class TaskApiController extends Controller
 
     public function index(Request $request)
     {
-        $query = Task::query();
+        // Kembalikan task utama beserta subtasks secara nested dengan pagination
+        $query = Task::query()->whereNull('parent_task_id');
         
         if ($request->has('status')) {
             $query->where('status', $request->status);
@@ -30,7 +31,11 @@ class TaskApiController extends Controller
             $query->where('assigned_to', $request->assigned_to);
         }
         
-        return response()->json($query->paginate(20));
+        $tasks = $query->with(['subtasks' => function($q) {
+            $q->with('subtasks'); // nested subtasks
+        }])->orderBy('created_at', 'desc')->paginate(20);
+        
+        return response()->json($tasks);
     }
 
     public function store(Request $request)
@@ -66,10 +71,31 @@ class TaskApiController extends Controller
     public function update(Request $request, $uuid)
     {
         $task = Task::where('uuid', $uuid)->firstOrFail();
-        $data = $request->only('title', 'description');
-        if($request->has('due_at')) {
-             $data['due_at'] = $request->due_at ?: null;
+        $data = $request->only('title', 'description', 'parent_task_id');
+        
+        // Validasi parent_task_id tidak boleh circular
+        if ($request->has('parent_task_id')) {
+            if ($request->parent_task_id == $task->id) {
+                return response()->json(['error' => 'Task tidak dapat menjadi parent dirinya sendiri'], 422);
+            }
+            // Cek apakah parent adalah subtask dari task ini (circular reference)
+            $parent = Task::find($request->parent_task_id);
+            if ($parent) {
+                $ancestor = $parent;
+                while ($ancestor) {
+                    if ($ancestor->id == $task->id) {
+                        return response()->json(['error' => 'Circular reference detected'], 422);
+                    }
+                    $ancestor = $ancestor->parent_task_id ? Task::find($ancestor->parent_task_id) : null;
+                }
+            }
+            $data['parent_task_id'] = $request->parent_task_id === null ? null : $request->parent_task_id;
         }
+        
+        if ($request->has('due_at')) {
+            $data['due_at'] = $request->due_at ?: null;
+        }
+        
         $task->update($data); 
         return response()->json($task);
     }

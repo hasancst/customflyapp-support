@@ -8,6 +8,7 @@ use App\Modul\Tiket\Model\TiketPesan;
 use App\Modul\Tiket\Model\TiketKategori;
 use App\Modul\Tiket\Model\TiketLampiran;
 use App\Modul\Tiket\Model\TiketMakro;
+use App\Modul\Tiket\Services\TiketNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,13 @@ use Illuminate\Support\Str;
 
 class TiketController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(TiketNotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function indeks(Request $request)
     {
         $query = Tiket::with(['tiketKategori.parent']);
@@ -90,6 +98,9 @@ class TiketController extends Controller
             'pesan_awal' => $request->pesan,
         ]);
 
+        // Kirim notifikasi email ke admin (jika ada admin lain)
+        $this->notificationService->notifyNewTicket($tiket);
+
         return redirect('/admin/tiket/detail/' . $tiket->id)->with('berhasil', 'Tiket baru berhasil dibuat.');
     }
 
@@ -115,7 +126,7 @@ class TiketController extends Controller
 
         $tiket = Tiket::findOrFail($id);
 
-        TiketPesan::create([
+        $pesan = TiketPesan::create([
             'tiket_id'      => $tiket->id,
             'user_id'       => Auth::id(),
             'nama_pengirim' => Auth::user()->nama,
@@ -145,9 +156,16 @@ class TiketController extends Controller
             }
         }
 
+        $statusLama = $tiket->status;
         if ($tiket->status == 'terbuka' || $tiket->status == 'selesai') {
             $tiket->update(['status' => 'proses']);
+            if ($statusLama !== 'proses') {
+                $this->notificationService->notifyStatusChange($tiket, $statusLama, 'proses');
+            }
         }
+
+        // Kirim notifikasi balasan admin ke pelanggan
+        $this->notificationService->notifyTicketReply($tiket, $pesan);
 
         return back()->with('berhasil', 'Balasan berhasil dikirim.');
     }
@@ -155,7 +173,13 @@ class TiketController extends Controller
     public function gantiStatus(Request $request, $id)
     {
         $tiket = Tiket::findOrFail($id);
-        $tiket->update(['status' => $request->status]);
+        $statusLama = $tiket->status;
+        $statusBaru = $request->status;
+        $tiket->update(['status' => $statusBaru]);
+
+        if ($statusLama !== $statusBaru) {
+            $this->notificationService->notifyStatusChange($tiket, $statusLama, $statusBaru);
+        }
 
         return back()->with('berhasil', 'Status tiket diperbarui menjadi ' . $request->status);
     }

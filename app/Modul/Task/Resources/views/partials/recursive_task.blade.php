@@ -44,7 +44,8 @@
 <div id="subtask-form-{{ $task->uuid }}" style="display:none; margin-left: {{ ($level + 1) * 40 }}px; padding: 10px; border-bottom: 1px solid #f1f5f9; background: #f8fafc;">
     <form onsubmit="event.preventDefault(); createSubtask('{{ $task->id }}', this)">
         <div style="display: flex; gap: 10px;">
-            <input type="text" name="title" placeholder="New subtask..." required style="flex:1; padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
+            <input type="text" name="title" placeholder="New subtask..." required style="flex:1; padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;" onkeydown="if(event.key === 'Escape') { event.preventDefault(); toggleSubtaskForm('{{ $task->uuid }}'); }">
+            <button type="button" class="btn" style="padding: 2px 10px; font-size: 0.8rem; background: #e2e8f0; color: #475569;" onclick="toggleSubtaskForm('{{ $task->uuid }}')">Cancel</button>
             <button type="submit" class="btn" style="padding: 2px 10px; font-size: 0.8rem;">Add</button>
         </div>
     </form>

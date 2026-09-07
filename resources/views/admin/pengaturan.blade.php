@@ -244,6 +244,57 @@
                 </div>
             </div>
 
+            <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
+                <h3 style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px;">
+                    <i class="fas fa-bell"></i> Notifikasi Email Tiket
+                </h3>
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0; color: #1e40af; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Email notifikasi</strong> akan dikirim ke alamat email yang Anda masukkan di bawah ini setiap kali ada tiket baru masuk atau customer membalas tiket.
+                    </p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                        Email Admin untuk Notifikasi Tiket
+                        <span style="color: #64748b; font-weight: normal; font-size: 0.85rem;">(pisahkan dengan koma jika lebih dari satu)</span>
+                    </label>
+                    <textarea 
+                        name="tiket_notif_emails" 
+                        rows="3" 
+                        placeholder="admin@example.com, support@example.com, manager@example.com"
+                        style="font-family: monospace; font-size: 0.9rem;"
+                    >{{ $pengaturan['tiket_notif_emails'] ?? '' }}</textarea>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
+                        Contoh: admin@perusahaan.com, support@perusahaan.com<br>
+                        Kosongkan jika ingin menggunakan Email Admin di atas sebagai penerima notifikasi.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
+                <h3 style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px;">
+                    <i class="fas fa-paper-plane"></i> Uji Coba Pengiriman Email (Test SMTP)
+                </h3>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;">
+                    <p style="margin-top: 0; margin-bottom: 15px; color: #475569; font-size: 0.9rem;">
+                        Gunakan tombol di bawah ini untuk memastikan konfigurasi SMTP di atas dapat terhubung dan berhasil mengirim email ke inbox.
+                    </p>
+                    <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 250px;">
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem;">Kirim Test Email Ke:</label>
+                            <input type="email" id="email_test_tujuan" value="{{ $pengaturan['email_admin'] ?? ($pengaturan['mail_username'] ?? '') }}" placeholder="nama@domain.com" style="width: 100%;">
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-outline" onclick="testKirimEmail(event)" style="padding: 10px 20px; font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-paper-plane"></i> Kirim Test Email
+                            </button>
+                        </div>
+                    </div>
+                    <div id="test-email-status" style="display: none; margin-top: 15px; padding: 12px 15px; border-radius: 6px; font-size: 0.85rem; white-space: pre-line;"></div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Tab Keamanan -->
@@ -565,6 +616,71 @@
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-plug"></i> Test Koneksi API';
             alert('Terjadi kesalahan: ' + error.message);
+        });
+    }
+
+    function testKirimEmail(event) {
+        const tujuan = document.getElementById('email_test_tujuan').value.trim();
+        const statusDiv = document.getElementById('test-email-status');
+        const btn = event.currentTarget;
+
+        if (!tujuan) {
+            alert('Silakan masukkan alamat email tujuan uji coba.');
+            return;
+        }
+
+        const mailDriver = document.querySelector('select[name="mail_driver"]')?.value || 'smtp';
+        const mailHost = document.querySelector('input[name="mail_host"]')?.value || '';
+        const mailPort = document.querySelector('input[name="mail_port"]')?.value || '587';
+        const mailUsername = document.querySelector('input[name="mail_username"]')?.value || '';
+        const mailPassword = document.querySelector('input[name="mail_password"]')?.value || '';
+        const mailEncryption = document.querySelector('select[name="mail_encryption"]')?.value || '';
+        const mailFromAddress = document.querySelector('input[name="mail_from_address"]')?.value || '';
+        const mailFromName = document.querySelector('input[name="mail_from_name"]')?.value || '';
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Test Email...';
+        statusDiv.style.display = 'none';
+
+        fetch('/admin/pengaturan/test-email', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email_tujuan: tujuan,
+                mail_driver: mailDriver,
+                mail_host: mailHost,
+                mail_port: mailPort,
+                mail_username: mailUsername,
+                mail_password: mailPassword,
+                mail_encryption: mailEncryption,
+                mail_from_address: mailFromAddress,
+                mail_from_name: mailFromName
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Test Email';
+            statusDiv.style.display = 'block';
+            statusDiv.innerText = data.pesan;
+
+            if (data.berhasil) {
+                statusDiv.style.background = '#dcfce7';
+                statusDiv.style.color = '#166534';
+                statusDiv.style.border = '1px solid #86efac';
+            } else {
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.color = '#991b1b';
+                statusDiv.style.border = '1px solid #fca5a5';
+            }
+        })
+        .catch(error => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Test Email';
+            alert('Terjadi kesalahan koneksi: ' + error.message);
         });
     }
 </script>

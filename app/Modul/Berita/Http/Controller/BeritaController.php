@@ -96,10 +96,13 @@ class BeritaController extends Controller
         return redirect('/admin/berita')->with('berhasil', 'Berita berhasil disimpan.');
     }
 
-    public function ubah($id)
+    public function ubah(Request $request, $id)
     {
         $berita = Berita::with(['kategoris', 'tags'])->findOrFail($id);
         $kategori = Kategori::all();
+        if ($request->get('panel')) {
+            return view('berita::ubah_panel', compact('berita', 'kategori'));
+        }
         return view('berita::ubah', compact('berita', 'kategori'));
     }
 
@@ -156,6 +159,9 @@ class BeritaController extends Controller
             $berita->tags()->sync($tagIds);
         }
 
+        if ($request->ajax() || $request->get('panel')) {
+            return response()->json(['berhasil' => true, 'pesan' => 'Berita berhasil diperbarui.']);
+        }
         return redirect('/admin/berita')->with('berhasil', 'Berita berhasil diperbarui.');
     }
 

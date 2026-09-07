@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Mail;
 use App\Inti\ZipExtractor;
 
 class AdminController extends Controller
@@ -317,6 +318,34 @@ class AdminController extends Controller
             }
         }
 
+        // Sinkronisasi Mail ke .env
+        if (isset($data['mail_driver'])) {
+            $this->updateEnv('MAIL_MAILER', $data['mail_driver']);
+        }
+        if (isset($data['mail_host'])) {
+            $this->updateEnv('MAIL_HOST', $data['mail_host']);
+        }
+        if (isset($data['mail_port'])) {
+            $this->updateEnv('MAIL_PORT', $data['mail_port']);
+        }
+        if (isset($data['mail_username'])) {
+            $this->updateEnv('MAIL_USERNAME', $data['mail_username']);
+        }
+        if (isset($data['mail_password'])) {
+            $this->updateEnv('MAIL_PASSWORD', '"' . str_replace('"', '\"', $data['mail_password']) . '"');
+        }
+        if (isset($data['mail_encryption'])) {
+            $this->updateEnv('MAIL_ENCRYPTION', $data['mail_encryption']);
+            $scheme = ($data['mail_encryption'] === 'ssl' || ($data['mail_port'] ?? '') == '465') ? 'smtps' : 'null';
+            $this->updateEnv('MAIL_SCHEME', $scheme);
+        }
+        if (isset($data['mail_from_address'])) {
+            $this->updateEnv('MAIL_FROM_ADDRESS', '"' . $data['mail_from_address'] . '"');
+        }
+        if (isset($data['mail_from_name'])) {
+            $this->updateEnv('MAIL_FROM_NAME', '"' . $data['mail_from_name'] . '"');
+        }
+
         // Pemeliharaan Mode Logic
         if (isset($data['fitur_pemeliharaan'])) {
             if ($data['fitur_pemeliharaan'] == '1') {
@@ -377,6 +406,60 @@ class AdminController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['berhasil' => false, 'pesan' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+    }
+
+    public function testEmail(Request $request)
+    {
+        $request->validate([
+            'email_tujuan' => 'required|email',
+        ]);
+
+        $emailTujuan = trim($request->input('email_tujuan'));
+
+        try {
+            $host = $request->input('mail_host') ?: DB::table('pengaturan')->where('kunci', 'mail_host')->value('nilai');
+            $port = (int)($request->input('mail_port') ?: DB::table('pengaturan')->where('kunci', 'mail_port')->value('nilai') ?: 587);
+            $driver = $request->input('mail_driver') ?: DB::table('pengaturan')->where('kunci', 'mail_driver')->value('nilai') ?: 'smtp';
+            $username = $request->input('mail_username') ?: DB::table('pengaturan')->where('kunci', 'mail_username')->value('nilai');
+            $password = $request->input('mail_password') ?: DB::table('pengaturan')->where('kunci', 'mail_password')->value('nilai');
+            $encryption = $request->input('mail_encryption') ?? DB::table('pengaturan')->where('kunci', 'mail_encryption')->value('nilai');
+            $fromAddress = $request->input('mail_from_address') ?: DB::table('pengaturan')->where('kunci', 'mail_from_address')->value('nilai') ?: $username;
+            $fromName = $request->input('mail_from_name') ?: DB::table('pengaturan')->where('kunci', 'mail_from_name')->value('nilai') ?: config('app.name');
+
+            $scheme = ($encryption === 'ssl' || $port === 465) ? 'smtps' : null;
+
+            config([
+                'mail.default' => $driver,
+                'mail.mailers.smtp.host' => $host,
+                'mail.mailers.smtp.port' => $port,
+                'mail.mailers.smtp.scheme' => $scheme,
+                'mail.mailers.smtp.username' => $username,
+                'mail.mailers.smtp.password' => $password,
+                'mail.from.address' => $fromAddress,
+                'mail.from.name' => $fromName,
+            ]);
+
+            app()->forgetInstance('mail.manager');
+
+            Mail::raw("Halo,\n\nIni adalah pesan uji coba dari sistem " . config('app.name') . ".\nJika Anda menerima email ini, konfigurasi SMTP (" . $host . ":" . $port . ") telah berhasil terhubung dan berfungsi dengan baik! ✅\n\nWaktu pengiriman: " . now()->format('Y-m-d H:i:s T'), function ($m) use ($emailTujuan, $fromAddress, $fromName) {
+                $m->to($emailTujuan)
+                  ->subject('✅ Test Konfigurasi Email - ' . config('app.name'));
+            });
+
+            return response()->json([
+                'berhasil' => true,
+                'pesan' => 'Email uji coba berhasil dikirim ke ' . $emailTujuan . '! Silakan periksa inbox/folder spam Anda.'
+            ]);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, '535') || str_contains($msg, 'BadCredentials')) {
+                $msg .= "\n\n💡 Catatan: Username atau Password/App Password Google ditolak oleh Google. Pastikan:\n1. 2-Step Verification aktif pada akun Google.\n2. Buat App Password (16 digit) khusus dari akun Google utama.\n3. Jika menggunakan Google Workspace alias/group, username SMTP harus merupakan email akun login Google utama.";
+            }
+            return response()->json([
+                'berhasil' => false,
+                'pesan' => 'Gagal mengirim email: ' . $msg
+            ]);
         }
     }
 

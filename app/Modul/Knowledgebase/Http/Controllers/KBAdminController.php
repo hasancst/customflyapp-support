@@ -122,10 +122,13 @@ class KBAdminController extends Controller
         return view('knowledgebase::admin.article_index', compact('articles', 'categoryGroups'));
     }
 
-    public function createArticle()
+    public function createArticle(Request $request)
     {
         $categories = KBCategory::all();
         if($categories->isEmpty()) return redirect('/admin/kb/category')->with('error', 'Buat kategori terlebih dahulu.');
+        if ($request->get('panel')) {
+            return view('knowledgebase::admin.article_create_panel', compact('categories'));
+        }
         return view('knowledgebase::admin.article_create', compact('categories'));
     }
 
@@ -150,10 +153,13 @@ class KBAdminController extends Controller
         return redirect('/admin/kb/article')->with('berhasil', 'Artikel KB berhasil disimpan.');
     }
 
-    public function editArticle($id)
+    public function editArticle(Request $request, $id)
     {
         $article = KBArticle::findOrFail($id);
         $categories = KBCategory::all();
+        if ($request->get('panel')) {
+            return view('knowledgebase::admin.article_edit_panel', compact('article', 'categories'));
+        }
         return view('knowledgebase::admin.article_edit', compact('article', 'categories'));
     }
 
@@ -168,6 +174,9 @@ class KBAdminController extends Controller
             'urutan' => $request->urutan ?? 0,
             'tags' => $request->tags
         ]);
+        if ($request->ajax() || $request->get('panel')) {
+            return response()->json(['berhasil' => true, 'pesan' => 'Artikel KB berhasil diperbarui.']);
+        }
         return redirect('/admin/kb/article')->with('berhasil', 'Artikel KB berhasil diperbarui.');
     }
 

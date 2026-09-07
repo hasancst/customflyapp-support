@@ -6,10 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Modul\Tiket\Model\Tiket;
 use App\Modul\Tiket\Model\TiketKategori;
 use App\Modul\Tiket\Model\TiketPesan;
+use App\Modul\Tiket\Services\TiketNotificationService;
 use Illuminate\Http\Request;
 
 class TiketPublikController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(TiketNotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * GET /api/shopify/tickets?email=...&shop=...
      * Daftar tiket milik customer, include jumlah lampiran
@@ -78,6 +86,9 @@ class TiketPublikController extends Controller
             'status'      => 'terbuka',
             'category_id' => $categoryId,
         ]);
+
+        // Kirim notifikasi email ke admin
+        $this->notificationService->notifyNewTicket($tiket);
 
         return response()->json([
             'berhasil' => true,
@@ -161,7 +172,11 @@ class TiketPublikController extends Controller
         // Jika status selesai, buka kembali ke terbuka saat customer reply
         if ($tiket->status === 'selesai') {
             $tiket->update(['status' => 'terbuka']);
+            $this->notificationService->notifyStatusChange($tiket, 'selesai', 'terbuka');
         }
+
+        // Kirim notifikasi email ke admin
+        $this->notificationService->notifyTicketReply($tiket, $pesan);
 
         return response()->json([
             'berhasil' => true,

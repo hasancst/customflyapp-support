@@ -9,5 +9,6 @@ Route::middleware(['web', 'auth'])->prefix('admin/artikel')->group(function () {
     Route::post('/tambah', [ArtikelController::class, 'simpan']);
     Route::get('/edit/{id}', [ArtikelController::class, 'edit']);
     Route::post('/edit/{id}', [ArtikelController::class, 'perbarui']);
+    Route::post('/ai-bantu', [ArtikelController::class, 'aiBantu']);
     Route::post('/hapus/{id}', [ArtikelController::class, 'hapus']);
 });

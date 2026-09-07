@@ -37,9 +37,24 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Tickets
     Route::get('/tickets',               [\App\Http\Controllers\Api\TiketApiController::class, 'index']);
+    Route::post('/tickets',              [\App\Http\Controllers\Api\TiketApiController::class, 'store']);
+    Route::get('/tickets/macros',        [\App\Http\Controllers\Api\TiketApiController::class, 'macros']);
+    Route::get('/tickets/kb-search',     [\App\Http\Controllers\Api\TiketApiController::class, 'kbSearch']);
     Route::get('/tickets/{id}',          [\App\Http\Controllers\Api\TiketApiController::class, 'show']);
     Route::post('/tickets/{id}/reply',   [\App\Http\Controllers\Api\TiketApiController::class, 'reply']);
     Route::patch('/tickets/{id}/status', [\App\Http\Controllers\Api\TiketApiController::class, 'updateStatus']);
+    Route::delete('/tickets/{id}',       [\App\Http\Controllers\Api\TiketApiController::class, 'destroy']);
+
+    // Ticket Categories
+    Route::get('/tickets/categories',          [\App\Http\Controllers\Api\TiketApiController::class, 'categories']);
+    Route::post('/tickets/categories',         [\App\Http\Controllers\Api\TiketApiController::class, 'categoriesStore']);
+    Route::patch('/tickets/categories/{id}',   [\App\Http\Controllers\Api\TiketApiController::class, 'categoriesUpdate']);
+    Route::delete('/tickets/categories/{id}',  [\App\Http\Controllers\Api\TiketApiController::class, 'categoriesDestroy']);
+
+    // Ticket Macros
+    Route::post('/tickets/macros',         [\App\Http\Controllers\Api\TiketApiController::class, 'macrosStore']);
+    Route::patch('/tickets/macros/{id}',   [\App\Http\Controllers\Api\TiketApiController::class, 'macrosUpdate']);
+    Route::delete('/tickets/macros/{id}',  [\App\Http\Controllers\Api\TiketApiController::class, 'macrosDestroy']);
 
     // Chat
     Route::get('/chat/sessions',              [\App\Http\Controllers\Api\ChatApiController::class, 'activeSessions']);
@@ -68,4 +83,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/articles/{id}',    [\App\Http\Controllers\Api\ContentApiController::class, 'showArticle']);
     Route::patch('/articles/{id}',  [\App\Http\Controllers\Api\ContentApiController::class, 'updateArticle']);
     Route::delete('/articles/{id}', [\App\Http\Controllers\Api\ContentApiController::class, 'deleteArticle']);
+
+    // Knowledgebase Categories
+    Route::get('/kb/categories',         [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'listCategories']);
+    Route::post('/kb/categories',        [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'storeCategory']);
+    Route::patch('/kb/categories/{id}',  [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'updateCategory']);
+    Route::delete('/kb/categories/{id}', [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'deleteCategory']);
+
+    // Knowledgebase Articles
+    Route::get('/kb/articles',         [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'listArticles']);
+    Route::post('/kb/articles',        [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'storeArticle']);
+    Route::get('/kb/articles/{id}',    [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'showArticle']);
+    Route::patch('/kb/articles/{id}',  [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'updateArticle']);
+    Route::delete('/kb/articles/{id}', [\App\Modul\Knowledgebase\Http\Controllers\KBApiController::class, 'deleteArticle']);
 });

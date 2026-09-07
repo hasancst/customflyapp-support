@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modul\Knowledgebase\Model\KBArticle;
 use App\Modul\Knowledgebase\Model\KBCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class KBApiController extends Controller
 {
@@ -180,5 +181,136 @@ class KBApiController extends Controller
                 'diperbarui_pada' => $article->updated_at,
             ],
         ]);
+    }
+
+    // === ADMIN API: CATEGORIES ===
+
+    public function listCategories()
+    {
+        $categories = KBCategory::with('parent', 'children')->orderBy('urutan')->get();
+        return response()->json(['success' => true, 'data' => $categories]);
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $request->validate(['nama' => 'required']);
+        $category = KBCategory::create([
+            'nama' => $request->nama,
+            'slug' => Str::slug($request->nama),
+            'parent_id' => $request->parent_id,
+            'ikon' => $request->ikon,
+            'deskripsi' => $request->deskripsi,
+            'urutan' => $request->urutan ?? 0
+        ]);
+        return response()->json(['success' => true, 'data' => $category], 201);
+    }
+
+    public function updateCategory(Request $request, $id)
+    {
+        $category = KBCategory::findOrFail($id);
+        
+        // Prevent category from being its own parent
+        if ($request->parent_id == $id) {
+            return response()->json(['success' => false, 'message' => 'Kategori tidak dapat menjadi induk dari dirinya sendiri.'], 400);
+        }
+        
+        // Prevent circular reference (if new parent is a child of this category)
+        if ($request->parent_id) {
+            $checkParent = KBCategory::find($request->parent_id);
+            while ($checkParent) {
+                if ($checkParent->parent_id == $id) {
+                    return response()->json(['success' => false, 'message' => 'Tidak dapat membuat circular reference.'], 400);
+                }
+                $checkParent = $checkParent->parent;
+            }
+        }
+        
+        $data = $request->all();
+        if ($request->has('nama')) {
+            $data['slug'] = Str::slug($request->nama);
+        }
+        $category->update($data);
+        return response()->json(['success' => true, 'data' => $category]);
+    }
+
+    public function deleteCategory($id)
+    {
+        KBCategory::findOrFail($id)->delete();
+        return response()->json(['success' => true]);
+    }
+
+    // === ADMIN API: ARTICLES ===
+
+    public function listArticles(Request $request)
+    {
+        $query = KBArticle::with('category');
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function($q) use ($cari) {
+                $q->where('judul', 'like', "%{$cari}%")
+                  ->orWhere('slug', 'like', "%{$cari}%");
+            });
+        }
+
+        if ($request->filled('category_id')) {
+            $selectedId = (int) $request->category_id;
+            // If selecting a parent, include all its children too
+            $childIds = KBCategory::where('parent_id', $selectedId)->pluck('id')->toArray();
+            $ids = array_merge([$selectedId], $childIds);
+            $query->whereIn('category_id', $ids);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('aktif', $request->status === 'aktif');
+        }
+
+        $articles = $query->latest()->paginate(20);
+        return response()->json(['success' => true, 'data' => $articles]);
+    }
+
+    public function showArticle($id)
+    {
+        $article = KBArticle::with('category')->findOrFail($id);
+        return response()->json(['success' => true, 'data' => $article]);
+    }
+
+    public function storeArticle(Request $request)
+    {
+        $request->validate([
+            'judul' => 'required',
+            'category_id' => 'required',
+            'konten' => 'required'
+        ]);
+
+        $article = KBArticle::create([
+            'judul' => $request->judul,
+            'slug' => Str::slug($request->judul),
+            'category_id' => $request->category_id,
+            'konten' => $request->konten,
+            'aktif' => $request->boolean('aktif', true),
+            'urutan' => $request->urutan ?? 0,
+            'tags' => $request->tags
+        ]);
+
+        return response()->json(['success' => true, 'data' => $article], 201);
+    }
+
+    public function updateArticle(Request $request, $id)
+    {
+        $article = KBArticle::findOrFail($id);
+        $data = $request->only('judul', 'category_id', 'konten', 'aktif', 'urutan', 'tags');
+        if ($request->has('judul')) {
+            $data['slug'] = Str::slug($request->judul);
+        }
+        $data['aktif'] = $request->boolean('aktif', $article->aktif);
+        $article->update($data);
+        return response()->json(['success' => true, 'data' => $article]);
+    }
+
+    public function deleteArticle($id)
+    {
+        KBArticle::findOrFail($id)->delete();
+        return response()->json(['success' => true]);
     }
 }

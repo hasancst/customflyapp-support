@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Modul\Task\Http\Controllers\Api\TaskApiController;
 
-Route::middleware(['web', 'auth'])->prefix('v1/tasks')->group(function () {
+Route::middleware(['auth:sanctum'])->prefix('v1/tasks')->group(function () {
     // Core CRUD
     Route::get('/', [TaskApiController::class, 'index']);
     Route::post('/', [TaskApiController::class, 'store']);

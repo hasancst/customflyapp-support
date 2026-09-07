@@ -6,6 +6,7 @@
 /.env.backup
 /public/hot
 /public/storage
+/public/help/
 /storage/*.key
 /storage/app/
 /storage/framework/
@@ -17,6 +18,7 @@ auth.json
 *.swo
 .DS_Store
 /.agent/
+/.agents
 /.gemini/
 /.kiro/
 /.hermes/

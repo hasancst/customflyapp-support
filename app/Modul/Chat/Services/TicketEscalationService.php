@@ -41,6 +41,12 @@ class TicketEscalationService
             'status' => 'eskalasi'
         ]);
 
+        try {
+            app(\App\Modul\Tiket\Services\TiketNotificationService::class)->notifyNewTicket($ticket);
+        } catch (\Throwable $e) {
+            // Ignored
+        }
+
         return $ticket;
     }
 
