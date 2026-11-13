@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <link rel="stylesheet" href="{{ asset('theme/imakecustom/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('theme/imakecustom/css/style.css') }}?v={{ @filemtime(public_path('theme/imakecustom/css/style.css')) ?: 1 }}">
     
     @yield('styles')
 </head>
@@ -61,7 +61,7 @@
                 <div class="logo">
                     <a href="/">{{ $first }}<span>{{ $second }}</span></a>
                 </div>
-                <p>{{ $pengaturan['deskripsi_situs'] ?? 'Redefining custom manufacturing through innovation and precision.' }}</p>
+                <p>{{ $pengaturan['deskripsi_situs'] ?? 'Powering custom commerce on Shopify with Customfly, Uploadfly, and Optionfly.' }}</p>
             </div>
             <div class="footer-links">
                 <h4>Footer Menu</h4>

@@ -13,7 +13,7 @@ class LayananController extends Controller
     {
         return [
             [
-                'eyebrow' => '01. CUSTOMFLY • 2D & 3D LIVE VISUAL CUSTOMIZER',
+                'eyebrow' => '01. CUSTOMFLY • LIVE 2D VISUAL CUSTOMIZER',
                 'color' => '#f77062',
                 'btn_bg' => 'linear-gradient(135deg, #f77062 0%, #fe5196 100%)',
                 'btn_shadow' => '0 10px 28px rgba(247, 112, 98, 0.35)',
@@ -23,7 +23,7 @@ class LayananController extends Controller
                     'Live Multi-View Switcher (Front, Back, Side)',
                     'Advanced Curved Text, Monograms & Custom Fonts',
                     'Instant Colorway Switching & Dynamic Swatch Matrix',
-                    'Interactive 2D & 3D Live Mockup Synchronization',
+                    'Interactive Live Multi-View Mockup Synchronization',
                 ],
                 'cta' => 'Explore Customfly App',
                 'url' => '/blog/customfly-review-the-ultimate-interactive-product-personalizer-for-shopify-stores',
@@ -54,9 +54,9 @@ class LayananController extends Controller
                 'btn_bg' => 'linear-gradient(135deg, #00a0f0 0%, #2563eb 100%)',
                 'btn_shadow' => '0 10px 28px rgba(0, 160, 240, 0.35)',
                 'title' => 'Custom Product Options with Smart Conditional Logic',
-                'desc' => "Break free from Shopify's 100-variant limit. Build rich custom option sets with image and color swatches, dynamic conditional display rules, and automated real-time add-on price calculations.",
+                'desc' => "Break free from Shopify's 1000+ variant limit. Build rich custom option sets with image and color swatches, dynamic conditional display rules, and automated real-time add-on price calculations.",
                 'chips' => [
-                    'Unlimited Custom Options Beyond Shopify 100 Variants',
+                    'Unlimited Custom Options Beyond Shopify 1000+ Variants',
                     'Smart Conditional Display Logic & Field Dependencies',
                     'Rich Visual Swatches (Color, Image, Pattern, Texture)',
                     'Live Add-On Pricing & Automated Cart Subtotal Sync',
