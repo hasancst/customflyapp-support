@@ -15,9 +15,15 @@ class ThemeManager
     {
         try {
             $tema = DB::table('tema')->where('aktif', true)->first();
-            return $tema ? $tema->slug : 'default';
+            $slug = $tema ? $tema->slug : 'imakecustom';
+            
+            // Jika tema aktif tidak memiliki index.blade.php, otomatis gunakan fallback 'imakecustom'
+            if (!File::exists(resource_path("theme/{$slug}/index.blade.php"))) {
+                return 'imakecustom';
+            }
+            return $slug;
         } catch (\Exception $e) {
-            return 'default';
+            return 'imakecustom';
         }
     }
 
@@ -40,17 +46,20 @@ class ThemeManager
     {
         $temaAktif = $this->getTemaAktif();
         $pathTema = resource_path("theme/{$temaAktif}");
+        $fallback = resource_path('theme/imakecustom');
 
+        $paths = [];
         if (File::exists($pathTema)) {
-            // Urutan: Cek di tema dulu, baru default views
-            View::prependNamespace('tema', $pathTema);
-            
-            // Tambahkan ke main search path agar bisa override views bawaan
+            $paths[] = $pathTema;
             app('view.finder')->prependLocation($pathTema);
-        } else {
-            // Fallback: Register the first available theme or a generic path to avoid 500
-            $fallback = resource_path('views');
-            View::prependNamespace('tema', $fallback);
         }
+        if (File::exists($fallback) && $pathTema !== $fallback) {
+            $paths[] = $fallback;
+        }
+        if (empty($paths)) {
+            $paths[] = resource_path('views');
+        }
+
+        View::replaceNamespace('tema', array_values(array_unique($paths)));
     }
 }

@@ -38,16 +38,22 @@
                         </div>
                         @if($t['aktif'])
                             <span class="badge badge-success">Aktif</span>
+                        @elseif(!($t['lengkap'] ?? true))
+                            <span class="badge" style="background: #e2e8f0; color: #64748b;">Belum Ada Template</span>
                         @endif
                     </div>
                     
                     <div style="margin-top: 20px;">
                         @if(!$t['aktif'])
-                        <form action="/admin/tema/aktifkan" method="POST">
-                            @csrf
-                            <input type="hidden" name="slug" value="{{ $t['slug'] }}">
-                            <button class="btn" style="width: 100%;">Gunakan Tema</button>
-                        </form>
+                            @if($t['lengkap'] ?? true)
+                            <form action="/admin/tema/aktifkan" method="POST">
+                                @csrf
+                                <input type="hidden" name="slug" value="{{ $t['slug'] }}">
+                                <button class="btn" style="width: 100%;">Gunakan Tema</button>
+                            </form>
+                            @else
+                            <button class="btn" style="width: 100%; background: #94a3b8; cursor: not-allowed;" title="Template belum memiliki index.blade.php" disabled>Belum Tersedia</button>
+                            @endif
                         @else
                         <button class="btn" style="width: 100%; background: #94a3b8;" disabled>Tema Aktif</button>
                         @endif

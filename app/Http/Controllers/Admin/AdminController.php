@@ -198,11 +198,13 @@ class AdminController extends Controller
             
             if (File::exists($manifestPath)) {
                 $manifest = json_decode(File::get($manifestPath), true);
+                $isLengkap = File::exists($dir . '/index.blade.php');
                 
                 $daftarTema[] = [
                     'nama' => $manifest['nama'] ?? $slug,
                     'slug' => $slug,
                     'versi' => $manifest['versi'] ?? '1.0.0',
+                    'lengkap' => $isLengkap,
                     'aktif' => isset($temaTerdaftar[$slug]) ? $temaTerdaftar[$slug]->aktif : false,
                 ];
             }
@@ -214,6 +216,11 @@ class AdminController extends Controller
     public function aktifkanTema(Request $request)
     {
         $slug = $request->slug;
+        $pathTema = resource_path("theme/{$slug}");
+
+        if (!File::exists($pathTema . '/index.blade.php')) {
+            return back()->with('error', "Tema {$slug} tidak dapat diaktifkan karena belum memiliki template (index.blade.php tidak ditemukan).");
+        }
         
         // Pastikan terdaftar di DB
         DB::table('tema')->updateOrInsert(
