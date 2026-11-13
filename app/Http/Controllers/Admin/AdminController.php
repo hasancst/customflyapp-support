@@ -389,34 +389,35 @@ class AdminController extends Controller
     public function testGemini(Request $request)
     {
         $request->validate([
-            'api_key' => 'required',
-            'model' => 'required'
+            'provider' => 'nullable|in:gemini,9router',
+            'api_key' => 'nullable|string',
+            'base_url' => 'nullable|string',
+            'model' => 'required|string',
         ]);
 
-        try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post("https://generativeLanguage.googleapis.com/v1beta/models/{$request->model}:generateContent?key={$request->api_key}", [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => 'Test connection. Reply with "OK" only.']
-                        ]
-                    ]
-                ]
-            ]);
+        $result = \App\Inti\AIClient::testConnection([
+            'provider' => $request->input('provider', 'gemini'),
+            'api_key' => $request->input('api_key', ''),
+            'base_url' => $request->input('base_url', ''),
+            'model' => $request->input('model', ''),
+        ]);
 
-            if ($response->successful()) {
-                return response()->json(['berhasil' => true, 'pesan' => 'Koneksi berhasil! ' . $response->json()['candidates'][0]['content']['parts'][0]['text']]);
-            }
+        return response()->json($result);
+    }
 
-            $errorData = $response->json();
-            $errorMessage = $errorData['error']['message'] ?? 'Unknown Error';
-            return response()->json(['berhasil' => false, 'pesan' => 'Gagal: ' . $errorMessage . ' (HTTP ' . $response->status() . ')']);
+    public function fetch9RouterModels(Request $request)
+    {
+        $request->validate([
+            'base_url' => 'required|string',
+            'api_key' => 'nullable|string',
+        ]);
 
-        } catch (\Exception $e) {
-            return response()->json(['berhasil' => false, 'pesan' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-        }
+        $result = \App\Inti\AIClient::fetch9RouterModels(
+            $request->input('base_url'),
+            $request->input('api_key')
+        );
+
+        return response()->json($result);
     }
 
     public function testEmail(Request $request)

@@ -163,24 +163,74 @@
 
         <!-- Tab AI -->
         <div id="ai" class="tab-content">
-            <h3 style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px;">Integrasi Google Gemini AI</h3>
-            <div style="max-width: 600px;">
+            <h3 style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px;">Integrasi AI (Google Gemini &amp; 9router)</h3>
+            <div style="max-width: 650px;">
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Google Gemini API Key</label>
-                    <input type="password" name="ai_gemini_key" value="{{ $pengaturan['ai_gemini_key'] ?? '' }}" placeholder="AIzaSy...">
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Gunakan API Key dari <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>. Fitur AI Help pada penulisan berita akan menggunakan kunci ini.</p>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Model AI</label>
-                    <select name="ai_gemini_model" id="ai_gemini_model">
-                        <option value="gemini-flash-latest" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-flash-latest' ? 'selected' : '' }}>Gemini Flash Latest (Terbaru - Paling Cepat)</option>
-                        <option value="gemini-1.5-flash-latest" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-1.5-flash-latest' ? 'selected' : '' }}>Gemini 1.5 Flash Latest</option>
-                        <option value="gemini-1.5-pro" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-1.5-pro' ? 'selected' : '' }}>Gemini 1.5 Pro</option>
-                        <option value="gemini-2.0-flash-exp" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-2.0-flash-exp' ? 'selected' : '' }}>Gemini 2.0 Flash Experimental</option>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Provider AI Aktif</label>
+                    <select name="ai_provider" id="ai_provider" onchange="toggleAiProvider()">
+                        <option value="gemini" {{ ($pengaturan['ai_provider'] ?? 'gemini') == 'gemini' ? 'selected' : '' }}>Google Gemini (Direct API)</option>
+                        <option value="9router" {{ ($pengaturan['ai_provider'] ?? 'gemini') == '9router' ? 'selected' : '' }}>9router (OpenAI-Compatible Proxy)</option>
                     </select>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Pilih provider AI yang digunakan untuk fitur AI Assistant pada Blog, Artikel, dan Knowledge Base.</p>
                 </div>
+
+                <!-- Panel Google Gemini -->
+                <div id="ai-gemini-panel" style="display: {{ ($pengaturan['ai_provider'] ?? 'gemini') == 'gemini' ? 'block' : 'none' }};">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Google Gemini API Key</label>
+                        <input type="password" name="ai_gemini_key" id="ai_gemini_key" value="{{ $pengaturan['ai_gemini_key'] ?? '' }}" placeholder="AIzaSy...">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Gunakan API Key dari <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.</p>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Model Gemini</label>
+                        <select name="ai_gemini_model" id="ai_gemini_model">
+                            <option value="gemini-flash-latest" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-flash-latest' ? 'selected' : '' }}>Gemini Flash Latest (Terbaru - Paling Cepat)</option>
+                            <option value="gemini-1.5-flash-latest" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-1.5-flash-latest' ? 'selected' : '' }}>Gemini 1.5 Flash Latest</option>
+                            <option value="gemini-1.5-pro" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-1.5-pro' ? 'selected' : '' }}>Gemini 1.5 Pro</option>
+                            <option value="gemini-2.0-flash-exp" {{ ($pengaturan['ai_gemini_model'] ?? 'gemini-flash-latest') == 'gemini-2.0-flash-exp' ? 'selected' : '' }}>Gemini 2.0 Flash Experimental</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Panel 9router -->
+                <div id="ai-9router-panel" style="display: {{ ($pengaturan['ai_provider'] ?? 'gemini') == '9router' ? 'block' : 'none' }};">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">9router Base URL (Endpoint)</label>
+                        <input type="url" name="ai_9router_url" id="ai_9router_url" value="{{ $pengaturan['ai_9router_url'] ?? 'http://localhost:20128/v1' }}" placeholder="http://localhost:20128/v1" oninput="update9RouterDashboardLink()">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Endpoint OpenAI-compatible 9router Anda (default lokal: <code>http://localhost:20128/v1</code>).</p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="font-weight: 600; margin: 0;">9router API Key</label>
+                            <a id="link-9router-dashboard" href="http://localhost:20128/dashboard" target="_blank" style="font-size: 0.8rem; color: var(--primary); font-weight: 600; text-decoration: none;">
+                                <i class="fas fa-key"></i> Get API Key dari 9router Dashboard <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i>
+                            </a>
+                        </div>
+                        <input type="password" name="ai_9router_key" id="ai_9router_key" value="{{ $pengaturan['ai_9router_key'] ?? '' }}" placeholder="Masukkan API Key dari 9router Dashboard...">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Buka 9router Dashboard untuk membuat/menyalin API Key lokal Anda (opsional jika autentikasi 9router dimatikan).</p>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label style="font-weight: 600; margin: 0;">Model / Combo 9router</label>
+                            <button type="button" onclick="ambilModel9Router(event)" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #0ea5e9;">
+                                <i class="fas fa-sync-alt"></i> Ambil Daftar Model
+                            </button>
+                        </div>
+                        <input type="text" name="ai_9router_model" id="ai_9router_model" list="nine-router-models-list" value="{{ $pengaturan['ai_9router_model'] ?? '' }}" placeholder="Contoh: gemini-2.5-flash, gpt-4o, atau nama combo">
+                        <datalist id="nine-router-models-list"></datalist>
+                        <div id="nine-router-models-picker" style="display: none; margin-top: 8px;">
+                            <select id="nine-router-models-select" onchange="if(this.value) document.getElementById('ai_9router_model').value = this.value;" style="font-size: 0.85rem;">
+                                <option value="">-- Pilih Model dari 9router --</option>
+                            </select>
+                        </div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Ketik nama model/combo secara manual atau klik <strong>Ambil Daftar Model</strong> dari endpoint <code>/v1/models</code>.</p>
+                    </div>
+                </div>
+
                 <div style="margin-top: 10px;">
-                    <button type="button" onclick="testKoneksiGemini()" class="btn" style="background: #eab308; width: 100%; justify-content: center;">
+                    <button type="button" onclick="testKoneksiGemini(event)" class="btn" style="background: #eab308; width: 100%; justify-content: center;">
                         <i class="fas fa-plug"></i> Test Koneksi API
                     </button>
                     <div id="test-ai-status" style="margin-top: 10px; font-size: 0.85rem; display: none; padding: 10px; border-radius: 8px;">
@@ -574,15 +624,120 @@
         });
     }
 
-    function testKoneksiGemini() {
-        const apiKey = document.querySelector('input[name="ai_gemini_key"]').value;
-        const model = document.getElementById('ai_gemini_model').value;
-        const statusDiv = document.getElementById('test-ai-status');
-        const btn = event.currentTarget;
+    function toggleAiProvider() {
+        const provider = document.getElementById('ai_provider').value;
+        document.getElementById('ai-gemini-panel').style.display = provider === 'gemini' ? 'block' : 'none';
+        document.getElementById('ai-9router-panel').style.display = provider === '9router' ? 'block' : 'none';
+        document.getElementById('test-ai-status').style.display = 'none';
+        if (provider === '9router') {
+            update9RouterDashboardLink();
+        }
+    }
 
-        if (!apiKey) {
-            alert('Silakan masukkan API Key terlebih dahulu.');
+    function update9RouterDashboardLink() {
+        const urlInput = document.getElementById('ai_9router_url');
+        const link = document.getElementById('link-9router-dashboard');
+        if (!urlInput || !link) return;
+        const raw = (urlInput.value || 'http://localhost:20128/v1').trim();
+        try {
+            const parsed = new URL(raw);
+            link.href = parsed.origin + '/dashboard';
+        } catch (e) {
+            link.href = 'http://localhost:20128/dashboard';
+        }
+    }
+
+    function ambilModel9Router(e) {
+        const baseUrl = document.getElementById('ai_9router_url').value.trim();
+        const apiKey = document.getElementById('ai_9router_key').value.trim();
+        const statusDiv = document.getElementById('test-ai-status');
+        const btn = e ? e.currentTarget : event.currentTarget;
+
+        if (!baseUrl) {
+            alert('Silakan masukkan 9router Base URL terlebih dahulu.');
             return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+
+        fetch('/admin/pengaturan/9router-models', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ base_url: baseUrl, api_key: apiKey })
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Ambil Daftar Model';
+
+            statusDiv.style.display = 'block';
+            statusDiv.innerText = data.pesan;
+
+            if (data.berhasil && Array.isArray(data.models) && data.models.length > 0) {
+                statusDiv.style.background = '#dcfce7';
+                statusDiv.style.color = '#166534';
+
+                const datalist = document.getElementById('nine-router-models-list');
+                const select = document.getElementById('nine-router-models-select');
+                const picker = document.getElementById('nine-router-models-picker');
+                datalist.innerHTML = '';
+                select.innerHTML = '<option value="">-- Pilih Model dari 9router --</option>';
+
+                data.models.forEach(m => {
+                    const opt1 = document.createElement('option');
+                    opt1.value = m;
+                    datalist.appendChild(opt1);
+
+                    const opt2 = document.createElement('option');
+                    opt2.value = m;
+                    opt2.textContent = m;
+                    select.appendChild(opt2);
+                });
+
+                picker.style.display = 'block';
+                const modelInput = document.getElementById('ai_9router_model');
+                if (!modelInput.value && data.models[0]) {
+                    modelInput.value = data.models[0];
+                }
+            } else {
+                statusDiv.style.background = '#fee2e2';
+                statusDiv.style.color = '#991b1b';
+            }
+        })
+        .catch(error => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Ambil Daftar Model';
+            alert('Terjadi kesalahan: ' + error.message);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', update9RouterDashboardLink);
+
+    function testKoneksiGemini(e) {
+        const provider = document.getElementById('ai_provider').value;
+        const statusDiv = document.getElementById('test-ai-status');
+        const btn = e ? e.currentTarget : event.currentTarget;
+
+        let payload = { provider: provider };
+        if (provider === '9router') {
+            payload.base_url = document.getElementById('ai_9router_url').value.trim();
+            payload.api_key = document.getElementById('ai_9router_key').value.trim();
+            payload.model = document.getElementById('ai_9router_model').value.trim();
+            if (!payload.base_url || !payload.model) {
+                alert('Silakan masukkan Base URL dan Model 9router terlebih dahulu.');
+                return;
+            }
+        } else {
+            payload.api_key = document.getElementById('ai_gemini_key').value.trim();
+            payload.model = document.getElementById('ai_gemini_model').value;
+            if (!payload.api_key) {
+                alert('Silakan masukkan API Key Gemini terlebih dahulu.');
+                return;
+            }
         }
 
         btn.disabled = true;
@@ -595,7 +750,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ api_key: apiKey, model: model })
+            body: JSON.stringify(payload)
         })
         .then(response => response.json())
         .then(data => {

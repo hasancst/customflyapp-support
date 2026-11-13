@@ -223,14 +223,6 @@ class BeritaController extends Controller
             'isi' => 'nullable|string',
         ]);
 
-        $settings = \DB::table('pengaturan')->pluck('nilai', 'kunci')->toArray();
-        $apiKey = $settings['ai_gemini_key'] ?? null;
-        $model = $settings['ai_gemini_model'] ?? 'gemini-flash-latest';
-
-        if (!$apiKey) {
-            return response()->json(['berhasil' => false, 'pesan' => 'API Key Gemini belum diatur di Pengaturan.']);
-        }
-
         $perintah = $request->perintah;
         $judul = $request->judul ?: '';
         $isi = strip_tags($request->isi ?: '');
@@ -259,86 +251,23 @@ OUTPUT YANG DIHARAPKAN (FORMAT JSON):
 
 PENTING: Hanya kembalikan JSON saja.";
 
-        try {
-            $response = Http::timeout(60)->withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post("https://generativeLanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey", [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt]
-                        ]
-                    ]
-                ],
-                'generationConfig' => [
-                    'response_mime_type' => 'application/json',
-                ],
-                'safetySettings' => [
-                    [
-                        'category' => 'HARM_CATEGORY_HARASSMENT',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_HATE_SPEECH',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                ]
-            ]);
-
-            if ($response->failed()) {
-                $error = $response->json()['error']['message'] ?? 'Connection error';
-                return response()->json(['berhasil' => false, 'pesan' => 'Gagal dari Gemini: ' . $error . ' (HTTP ' . $response->status() . ')']);
-            }
-
-            $result = $response->json();
-            $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
-
-            if (!$text) {
-                return response()->json(['berhasil' => false, 'pesan' => 'Gemini tidak memberikan respon yang valid.']);
-            }
-
-            // Bersihkan teks dari Markdown jika ada (Fallback jika model tidak menghiraukan response_mime_type)
-            $text = trim($text);
-            if (preg_match('/^```json\s+(.*?)\s+```$/s', $text, $matches)) {
-                $text = $matches[1];
-            } elseif (preg_match('/^```\s+(.*?)\s+```$/s', $text, $matches)) {
-                $text = $matches[1];
-            }
-            
-            // Mencoba mencari JSON di dalam string jika masih gagal (ekstrim)
-            if (!str_starts_with($text, '{')) {
-                $start = strpos($text, '{');
-                $end = strrpos($text, '}');
-                if ($start !== false && $end !== false) {
-                    $text = substr($text, $start, $end - $start + 1);
-                }
-            }
-
-            $aiData = json_decode($text, true);
-            if (!$aiData) {
-                // Return original text for debugging if it's almost JSON but failed
-                return response()->json([
-                    'berhasil' => false, 
-                    'pesan' => 'Gagal memproses format JSON dari AI. Silakan coba lagi.',
-                    'debug_raw' => substr($text, 0, 100)
-                ]);
-            }
-
-            return response()->json([
-                'berhasil' => true,
-                'data' => $aiData
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json(['berhasil' => false, 'pesan' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        $res = \App\Inti\AIClient::generate($prompt, ['json' => true]);
+        if (!$res['berhasil']) {
+            return response()->json(['berhasil' => false, 'pesan' => $res['pesan']]);
         }
+
+        $aiData = \App\Inti\AIClient::decodeJson($res['text']);
+        if (!$aiData) {
+            return response()->json([
+                'berhasil' => false,
+                'pesan' => 'Gagal memproses format JSON dari AI. Silakan coba lagi.',
+                'debug_raw' => substr($res['text'] ?? '', 0, 100)
+            ]);
+        }
+
+        return response()->json([
+            'berhasil' => true,
+            'data' => $aiData
+        ]);
     }
 }

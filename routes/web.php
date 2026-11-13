@@ -70,6 +70,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::get('/pengaturan', [AdminController::class, 'indeksPengaturan']);
         Route::post('/pengaturan', [AdminController::class, 'simpanPengaturan']);
         Route::post('/pengaturan/test-gemini', [AdminController::class, 'testGemini']);
+        Route::post('/pengaturan/9router-models', [AdminController::class, 'fetch9RouterModels']);
         Route::post('/pengaturan/test-email', [AdminController::class, 'testEmail']);
         Route::post('/media/unggah', [AdminController::class, 'unggahMedia'])->name('admin.media.unggah');
         

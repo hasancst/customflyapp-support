@@ -63,17 +63,6 @@ class KBPublicController extends Controller
             'pertanyaan' => 'required|string|max:500'
         ]);
 
-        $settings = \DB::table('pengaturan')->pluck('nilai', 'kunci')->toArray();
-        $apiKey = $settings['ai_gemini_key'] ?? null;
-        $model = $settings['ai_gemini_model'] ?? 'gemini-2.0-flash-exp';
-
-        if (!$apiKey) {
-            return response()->json([
-                'berhasil' => false, 
-                'pesan' => 'AI Assistant belum dikonfigurasi. Silakan hubungi administrator.'
-            ]);
-        }
-
         $pertanyaan = $request->pertanyaan;
 
         // Get all active articles with their categories
@@ -122,93 +111,25 @@ FORMAT JAWABAN (JSON):
 
 PENTING: Hanya kembalikan JSON saja, tanpa markdown code block.";
 
-        try {
-            $response = \Http::timeout(60)->withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey", [
-                'contents' => [
-                    [
-                        'parts' => [
-                            ['text' => $prompt]
-                        ]
-                    ]
-                ],
-                'generationConfig' => [
-                    'response_mime_type' => 'application/json',
-                ],
-                'safetySettings' => [
-                    [
-                        'category' => 'HARM_CATEGORY_HARASSMENT',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_HATE_SPEECH',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                    [
-                        'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                        'threshold' => 'BLOCK_NONE',
-                    ],
-                ]
-            ]);
-
-            if ($response->failed()) {
-                $error = $response->json()['error']['message'] ?? 'Connection error';
-                return response()->json([
-                    'berhasil' => false, 
-                    'pesan' => 'Gagal menghubungi AI: ' . $error
-                ]);
-            }
-
-            $result = $response->json();
-            $text = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
-
-            if (!$text) {
-                return response()->json([
-                    'berhasil' => false, 
-                    'pesan' => 'AI tidak memberikan respon yang valid.'
-                ]);
-            }
-
-            // Clean up markdown if any
-            $text = trim($text);
-            if (preg_match('/^```json\s+(.*?)\s+```$/s', $text, $matches)) {
-                $text = $matches[1];
-            } elseif (preg_match('/^```\s+(.*?)\s+```$/s', $text, $matches)) {
-                $text = $matches[1];
-            }
-
-            // Extract JSON if wrapped in text
-            if (!str_starts_with($text, '{')) {
-                $start = strpos($text, '{');
-                $end = strrpos($text, '}');
-                if ($start !== false && $end !== false) {
-                    $text = substr($text, $start, $end - $start + 1);
-                }
-            }
-
-            $aiData = json_decode($text, true);
-            if (!$aiData) {
-                return response()->json([
-                    'berhasil' => false,
-                    'pesan' => 'Gagal memproses respon AI. Silakan coba lagi.'
-                ]);
-            }
-
+        $res = \App\Inti\AIClient::generate($prompt, ['json' => true]);
+        if (!$res['berhasil']) {
             return response()->json([
-                'berhasil' => true,
-                'data' => $aiData
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'berhasil' => false, 
-                'pesan' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'berhasil' => false,
+                'pesan' => $res['pesan']
             ]);
         }
+
+        $aiData = \App\Inti\AIClient::decodeJson($res['text']);
+        if (!$aiData) {
+            return response()->json([
+                'berhasil' => false,
+                'pesan' => 'Gagal memproses respon AI. Silakan coba lagi.'
+            ]);
+        }
+
+        return response()->json([
+            'berhasil' => true,
+            'data' => $aiData
+        ]);
     }
 }
