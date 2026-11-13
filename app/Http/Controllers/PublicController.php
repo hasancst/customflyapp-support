@@ -13,28 +13,37 @@ use App\Modul\Berita\Model\Tag;
 
 class PublicController extends Controller
 {
+    /**
+     * Ambil daftar berita utama (prioritas unggulan/bintang kuning, dilengkapi berita terbaru).
+     */
+    private function getBeritaUtama(int $limit = 5)
+    {
+        $unggulan = Berita::with(['kategoris', 'tags'])
+            ->where('unggulan', true)
+            ->latest()
+            ->limit($limit)
+            ->get();
+
+        if ($unggulan->count() < $limit) {
+            $excludeIds = $unggulan->pluck('id');
+            $tambahan = Berita::with(['kategoris', 'tags'])
+                ->whereNotIn('id', $excludeIds)
+                ->latest()
+                ->limit($limit - $unggulan->count())
+                ->get();
+            $unggulan = $unggulan->merge($tambahan);
+        }
+
+        return $unggulan;
+    }
+
     public function index()
     {
         // Ambil data pengaturan
         $pengaturan = DB::table('pengaturan')->pluck('nilai', 'kunci')->toArray();
 
         // 1. Ambil Berita Unggulan (prioritas)
-        $unggulan = Berita::with(['kategoris', 'tags'])
-            ->where('unggulan', true)
-            ->latest()
-            ->limit(5)
-            ->get();
-
-        // 2. Jika kurang dari 5, ambil dari berita terbaru yang BUKAN unggulan
-        if ($unggulan->count() < 5) {
-            $excludeIds = $unggulan->pluck('id');
-            $tambahan = Berita::with(['kategoris', 'tags'])
-                ->whereNotIn('id', $excludeIds)
-                ->latest()
-                ->limit(5 - $unggulan->count())
-                ->get();
-            $unggulan = $unggulan->merge($tambahan);
-        }
+        $unggulan = $this->getBeritaUtama(5);
 
         // 3. Berita Populer Bulan Ini (untuk Slider)
         $popularStats = DB::table('stat_pengunjung')
@@ -168,8 +177,9 @@ class PublicController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $unggulan = $cari ? collect() : $this->getBeritaUtama(5);
         $topBerita = Berita::latest()->limit(5)->get();
-        return view('tema::semua_berita', compact('pengaturan', 'beritaList', 'topBerita', 'cari'));
+        return view('tema::semua_berita', compact('pengaturan', 'beritaList', 'topBerita', 'cari', 'unggulan'));
     }
 
     public function kategoriBerita($slug)

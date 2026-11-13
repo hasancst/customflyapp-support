@@ -135,6 +135,26 @@
             </div>
         </div>
 
+        <div style="margin-top: 10px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <label style="display: block; margin-bottom: 12px; font-weight: 600;">Galeri Tambahan (Gambar 2 – 5, Opsional)</label>
+            @php $galeri = is_array($item->galeri) ? $item->galeri : []; @endphp
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 14px;">
+                @for($g = 1; $g <= 4; $g++)
+                @php $slotPath = $galeri[$g - 1] ?? null; @endphp
+                <div style="border: 1px dashed var(--border); border-radius: 10px; padding: 12px; background: #f8fafc;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Gambar {{ $g + 1 }}</label>
+                    @if($slotPath)
+                        <img src="{{ str_starts_with($slotPath, 'http') ? $slotPath : '/storage/' . $slotPath }}" alt="Galeri {{ $g + 1 }}" style="width: 100%; height: 90px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border);">
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #dc2626; cursor: pointer; margin-bottom: 8px;">
+                            <input type="checkbox" name="hapus_galeri_{{ $g }}" value="1" style="width: auto;"> Hapus gambar ini
+                        </label>
+                    @endif
+                    <input type="file" name="galeri_{{ $g }}" accept="image/*" style="font-size: 0.8rem; width: 100%;">
+                </div>
+                @endfor
+            </div>
+        </div>
+
         <div style="display: flex; gap: 10px; margin-top: 30px;">
             <button type="submit" class="btn">Perbarui Portofolio</button>
             <a href="/admin/portofolio" class="btn" style="background: #64748b;">Batal</a>

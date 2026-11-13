@@ -24,13 +24,7 @@
 
         <div class="portfolio-grid">
             @forelse($portofolios as $p)
-                <div class="portfolio-item group reveal" data-category="{{ $p->kategori }}">
-                    <img src="/storage/{{ $p->gambar }}" alt="{{ $p->judul }}">
-                    <div class="overlay">
-                        <h4>{{ $p->judul }}</h4>
-                        <p>{{ $p->deskripsi }}</p>
-                    </div>
-                </div>
+                @include('tema::partials.portfolio_card', ['p' => $p])
             @empty
                 <div class="text-center" style="grid-column: 1/-1; padding: 4rem;">
                     <p class="text-muted">No projects found matching your criteria.</p>

@@ -221,11 +221,15 @@ class BeritaController extends Controller
             'perintah' => 'required|string',
             'judul' => 'nullable|string',
             'isi' => 'nullable|string',
+            'isi_b64' => 'nullable|string',
         ]);
 
         $perintah = $request->perintah;
         $judul = $request->judul ?: '';
-        $isi = strip_tags($request->isi ?: '');
+        $rawIsi = $request->filled('isi_b64')
+            ? (base64_decode($request->isi_b64, true) ?: '')
+            : ($request->isi ?: '');
+        $isi = strip_tags($rawIsi);
 
         $prompt = "Kamu adalah AI Assistant Content Strategist & SEO Expert.
 Instruksi: $perintah.

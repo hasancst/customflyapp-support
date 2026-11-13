@@ -221,7 +221,7 @@
                 _token: '{{ csrf_token() }}',
                 perintah: perintah,
                 judul: judul,
-                isi: isi
+                isi_b64: isi ? btoa(unescape(encodeURIComponent(isi))) : ''
             },
             success: function(res) {
                 btn.prop('disabled', false);

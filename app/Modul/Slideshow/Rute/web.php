@@ -5,6 +5,7 @@ use App\Modul\Slideshow\Http\Controller\SlideshowController;
 
 Route::prefix('admin/slideshow')->middleware(['web', 'auth'])->group(function () {
     Route::get('/', [SlideshowController::class, 'indeks']);
+    Route::post('/pengaturan-slider', [SlideshowController::class, 'simpanPengaturanSlider']);
     Route::get('/tambah', [SlideshowController::class, 'tambah']);
     Route::post('/tambah', [SlideshowController::class, 'simpan']);
     Route::get('/ubah/{id}', [SlideshowController::class, 'ubah']);

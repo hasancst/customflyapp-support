@@ -122,6 +122,18 @@
             </div>
         </div>
 
+        <div style="margin-top: 10px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <label style="display: block; margin-bottom: 12px; font-weight: 600;">Galeri Tambahan (Gambar 2 – 5, Opsional)</label>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+                @for($g = 1; $g <= 4; $g++)
+                <div style="border: 1px dashed var(--border); border-radius: 10px; padding: 12px; background: #f8fafc;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Gambar {{ $g + 1 }}</label>
+                    <input type="file" name="galeri_{{ $g }}" accept="image/*" style="font-size: 0.82rem; width: 100%;">
+                </div>
+                @endfor
+            </div>
+        </div>
+
         <div style="display: flex; gap: 10px; margin-top: 30px;">
             <button type="submit" class="btn">Simpan Portofolio</button>
             <a href="/admin/portofolio" class="btn" style="background: #64748b;">Batal</a>

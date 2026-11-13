@@ -5,6 +5,7 @@ namespace App\Modul\Slideshow\Http\Controller;
 use App\Http\Controllers\Controller;
 use App\Modul\Slideshow\Model\Slideshow;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SlideshowController extends Controller
@@ -12,7 +13,36 @@ class SlideshowController extends Controller
     public function indeks()
     {
         $slideshow = Slideshow::orderBy('urutan')->get();
-        return view('slideshow::indeks', compact('slideshow'));
+        $pengaturanSlider = DB::table('pengaturan')
+            ->whereIn('kunci', ['slider_3d_judul', 'slider_3d_deskripsi', 'slider_3d_sumber'])
+            ->pluck('nilai', 'kunci')
+            ->toArray();
+
+        return view('slideshow::indeks', compact('slideshow', 'pengaturanSlider'));
+    }
+
+    public function simpanPengaturanSlider(Request $request)
+    {
+        $request->validate([
+            'slider_3d_judul' => 'required|string|max:255',
+            'slider_3d_deskripsi' => 'nullable|string|max:500',
+            'slider_3d_sumber' => 'required|in:slideshow,gabungan',
+        ]);
+
+        $items = [
+            'slider_3d_judul' => $request->input('slider_3d_judul'),
+            'slider_3d_deskripsi' => $request->input('slider_3d_deskripsi', ''),
+            'slider_3d_sumber' => $request->input('slider_3d_sumber'),
+        ];
+
+        foreach ($items as $kunci => $nilai) {
+            DB::table('pengaturan')->updateOrInsert(
+                ['kunci' => $kunci],
+                ['nilai' => $nilai ?? '', 'updated_at' => now()]
+            );
+        }
+
+        return redirect('/admin/slideshow')->with('berhasil', 'Pengaturan teks dan sumber gambar 3D Rotating Slider berhasil disimpan.');
     }
 
     public function tambah()

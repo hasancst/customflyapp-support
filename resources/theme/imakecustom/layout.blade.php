@@ -166,6 +166,7 @@
     </script>
     @endif
     
+    {{-- Chat widget disabled (help.imakecustom.com unreachable / unused)
     <script>
     (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
@@ -175,5 +176,6 @@
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'best-support-system-chat'));
     </script>
+    --}}
 </body>
 </html>
