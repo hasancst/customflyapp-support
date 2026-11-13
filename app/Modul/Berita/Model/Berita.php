@@ -14,6 +14,11 @@ class Berita extends Model
         'unggulan' => 'boolean',
     ];
 
+    public function getGambarAttribute()
+    {
+        return $this->gambar_utama;
+    }
+
     public function kategoris()
     {
         return $this->belongsToMany(Kategori::class, 'berita_memiliki_kategori', 'berita_id', 'kategori_id');

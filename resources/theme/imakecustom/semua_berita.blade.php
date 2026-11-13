@@ -22,7 +22,7 @@
             @forelse($beritaList as $b)
                 <div class="blog-card reveal">
                     <div class="blog-image" style="border-radius: 20px; overflow: hidden; height: 250px; border: 1px solid var(--glass-border);">
-                        <img src="/storage/{{ $b->gambar }}" alt="{{ $b->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/storage/{{ $b->gambar_utama ?? $b->gambar }}" alt="{{ $b->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div class="blog-info" style="padding-top: 1.5rem;">
                         <span class="blog-date" style="color: var(--secondary); font-size: 0.9rem;">{{ $b->created_at->format('M d, Y') }}</span>

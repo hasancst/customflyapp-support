@@ -13,6 +13,7 @@ Route::post('/keluar', [LoginController::class, 'logout'])->name('logout');
 // Public Routes
 Route::get('/', [PublicController::class, 'index']);
 Route::get('/berita', [PublicController::class, 'berita']);
+Route::get('/berita/kategori', function() { return redirect('/berita'); });
 Route::get('/berita/kategori/{slug}', [PublicController::class, 'kategoriBerita']);
 Route::get('/kategori-berita', function() { return redirect('/berita'); });
 Route::get('/kategori-berita/{slug}', [PublicController::class, 'kategoriBerita']);
@@ -20,6 +21,7 @@ Route::get('/kategori-politik/{slug}', function($slug) { return redirect('/kateg
 Route::get('/berita/kategori-berita/{slug}', [PublicController::class, 'kategoriBerita']);
 Route::get('/politik', function() { return redirect('/kategori-berita/politik'); });
 Route::get('/berita/{kategori}/{slug}', [PublicController::class, 'detailBerita']);
+Route::get('/berita/{slug}', [PublicController::class, 'detailBeritaSingle']);
 Route::get('/tag/{slug}', [PublicController::class, 'tagBerita']);
 Route::get('/artikel', [PublicController::class, 'artikel']);
 Route::get('/artikel/kategori/{slug}', [PublicController::class, 'kategoriArtikel']);

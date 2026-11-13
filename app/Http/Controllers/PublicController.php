@@ -131,8 +131,12 @@ class PublicController extends Controller
         return view('tema::index', compact('pengaturan', 'unggulan', 'beritaTerbaru', 'beritaPopulerBulanIni', 'beritaPopuler', 'iklanTop', 'videoTerbaru', 'slideshow', 'portofolios', 'faqs', 'layanans', 'portfolioTags'));
     }
 
-    public function detailBerita($kategori, $slug)
+    public function detailBerita($kategori, $slug = null)
     {
+        if ($slug === null) {
+            $slug = $kategori;
+        }
+
         $berita = Berita::with(['kategoris', 'tags', 'penulis'])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -143,6 +147,11 @@ class PublicController extends Controller
         $latestVideos = \App\Modul\Video\Model\Video::where('aktif', true)->latest()->limit(3)->get();
 
         return view('tema::berita', compact('berita', 'pengaturan', 'beritaTerkait', 'topBerita', 'latestVideos'));
+    }
+
+    public function detailBeritaSingle($slug)
+    {
+        return $this->detailBerita(null, $slug);
     }
 
     public function berita(Request $request)
