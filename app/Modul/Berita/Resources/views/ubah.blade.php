@@ -4,7 +4,7 @@
 
 @section('konten')
 <div class="card">
-    <form action="/admin/berita/ubah/{{ $berita->id }}" method="POST" enctype="multipart/form-data">
+    <form action="/admin/blog/ubah/{{ $berita->id }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
             <div>
@@ -83,7 +83,7 @@
                     <button type="submit" class="btn" style="width: 100%; justify-content: center;">
                         <i class="fas fa-save"></i> Perbarui Berita
                     </button>
-                    <a href="/admin/berita" class="btn" style="width: 100%; justify-content: center; margin-top: 10px; background: #94a3b8;">Batal</a>
+                    <a href="/admin/blog" class="btn" style="width: 100%; justify-content: center; margin-top: 10px; background: #94a3b8;">Batal</a>
                 </div>
 
                 <div class="card" style="margin-bottom: 25px;">
@@ -248,7 +248,7 @@
         status.text('Working...');
 
         $.ajax({
-            url: '/admin/berita/ai-bantu',
+            url: '/admin/blog/ai-bantu',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',

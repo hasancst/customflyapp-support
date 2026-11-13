@@ -274,7 +274,7 @@
                     <h4>Explore</h4>
                     <ul class="footer-links">
                         <li><a href="/">Home</a></li>
-                        <li><a href="/berita">Portfolio</a></li>
+                        <li><a href="/blog">Portfolio</a></li>
                         <li><a href="/artikel">Blog</a></li>
                         <li><a href="/tentang">About Me</a></li>
                     </ul>

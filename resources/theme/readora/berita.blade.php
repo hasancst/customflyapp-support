@@ -122,7 +122,7 @@
             @foreach($beritaTerkait as $item)
             <div style="background: #fff; border-radius: 30px; overflow: hidden; box-shadow: var(--shadow); transition: var(--transition);">
                 <div style="height: 240px; overflow: hidden;">
-                    <a href="/berita/{{ $item->slug }}">
+                    <a href="/blog/{{ $item->slug }}">
                         @if($item->gambar_utama)
                         <img src="/storage/{{ $item->gambar_utama }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $item->judul }}">
                         @else
@@ -131,7 +131,7 @@
                     </a>
                 </div>
                 <div style="padding: 25px;">
-                    <h4 style="font-size: 20px;"><a href="/berita/{{ $item->slug }}">{{ $item->judul }}</a></h4>
+                    <h4 style="font-size: 20px;"><a href="/blog/{{ $item->slug }}">{{ $item->judul }}</a></h4>
                 </div>
             </div>
             @endforeach

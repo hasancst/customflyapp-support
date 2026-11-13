@@ -93,7 +93,7 @@ class BeritaController extends Controller
             $berita->tags()->sync($tagIds);
         }
 
-        return redirect('/admin/berita')->with('berhasil', 'Berita berhasil disimpan.');
+        return redirect('/admin/blog')->with('berhasil', 'Berita berhasil disimpan.');
     }
 
     public function ubah(Request $request, $id)
@@ -162,7 +162,7 @@ class BeritaController extends Controller
         if ($request->ajax() || $request->get('panel')) {
             return response()->json(['berhasil' => true, 'pesan' => 'Berita berhasil diperbarui.']);
         }
-        return redirect('/admin/berita')->with('berhasil', 'Berita berhasil diperbarui.');
+        return redirect('/admin/blog')->with('berhasil', 'Berita berhasil diperbarui.');
     }
 
     public function toggleUnggulan($id)
@@ -193,7 +193,7 @@ class BeritaController extends Controller
     {
         $berita = Berita::findOrFail($id);
         $berita->delete();
-        return redirect('/admin/berita')->with('berhasil', 'Berita berhasil dihapus.');
+        return redirect('/admin/blog')->with('berhasil', 'Berita berhasil dihapus.');
     }
 
     public function formImportWP()
@@ -209,7 +209,7 @@ class BeritaController extends Controller
         try {
             Artisan::call('modul:import-wp', ['url' => $baseUrl]);
             $output = Artisan::output();
-            return redirect('/admin/berita')->with('berhasil', 'Import WordPress berhasil.');
+            return redirect('/admin/blog')->with('berhasil', 'Import WordPress berhasil.');
         } catch (\Exception $e) {
             return back()->withErrors(['url' => 'Gagal import: ' . $e->getMessage()]);
         }

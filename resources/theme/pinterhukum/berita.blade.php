@@ -16,7 +16,7 @@
             <div id="ticker-slider" style="flex: 1; padding: 0 25px; height: 100%; position: relative; overflow: hidden;">
                 @foreach($topBerita as $idx => $top)
                 <div class="ticker-item" style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; transition: all 0.5s ease; opacity: {{ $idx == 0 ? '1' : '0' }}; visibility: {{ $idx == 0 ? 'visible' : 'hidden' }}; transform: translateY({{ $idx == 0 ? '0' : '20px' }});">
-                    <a href="/berita/{{ $top->kategoris->first()->slug ?? 'umum' }}/{{ $top->slug }}" style="text-decoration: none; color: var(--text-main); font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
+                    <a href="/blog/{{ $top->kategoris->first()->slug ?? 'umum' }}/{{ $top->slug }}" style="text-decoration: none; color: var(--text-main); font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
                         {{ $top->judul }}
                     </a>
                 </div>
@@ -34,7 +34,7 @@
                 <i class="fas fa-home" style="font-size: 0.8rem;"></i> Beranda
             </a>
             <span style="color: #cbd5e1;"><i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i></span>
-            <a href="/berita" style="color: var(--primary); text-decoration: none; font-weight: 600;">Berita</a>
+            <a href="/blog" style="color: var(--primary); text-decoration: none; font-weight: 600;">Berita</a>
             
             @if($berita->kategoris->first())
                 <span style="color: #cbd5e1;"><i class="fas fa-chevron-right" style="font-size: 0.6rem;"></i></span>
@@ -106,7 +106,7 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 @foreach($beritaTerkait as $bt)
                 <div class="related-card-premium">
-                    <a href="/berita/{{ $bt->kategoris->first()->slug ?? 'umum' }}/{{ $bt->slug }}" style="text-decoration: none; color: inherit;">
+                    <a href="/blog/{{ $bt->kategoris->first()->slug ?? 'umum' }}/{{ $bt->slug }}" style="text-decoration: none; color: inherit;">
                         <div style="height: 140px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
                             <img src="{{ $bt->gambar_utama ? (str_starts_with($bt->gambar_utama, 'http') ? $bt->gambar_utama : asset('storage/' . $bt->gambar_utama)) : asset('theme/pinterhukum/img/default.jpg') }}" 
                                  style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $bt->judul }}">
@@ -215,7 +215,7 @@
                                  style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <div>
-                            <a href="/berita/{{ $top->kategoris->first()->slug ?? 'umum' }}/{{ $top->slug }}" style="text-decoration: none; color: var(--text-main); font-size: 0.9rem; font-weight: 700; line-height: 1.3; display: block; margin-bottom: 3px;">{{ Str::limit($top->judul, 45) }}</a>
+                            <a href="/blog/{{ $top->kategoris->first()->slug ?? 'umum' }}/{{ $top->slug }}" style="text-decoration: none; color: var(--text-main); font-size: 0.9rem; font-weight: 700; line-height: 1.3; display: block; margin-bottom: 3px;">{{ Str::limit($top->judul, 45) }}</a>
                             <small style="color: var(--text-muted); font-size: 0.75rem;">{{ $top->created_at->format('d M Y') }}</small>
                         </div>
                     </li>

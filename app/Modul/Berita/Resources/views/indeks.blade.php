@@ -7,13 +7,13 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
         <h3>Daftar Berita</h3>
         <div style="display: flex; gap: 10px;">
-            <a href="/admin/berita/import-wp" class="btn" style="background: #eab308;">
+            <a href="/admin/blog/import-wp" class="btn" style="background: #eab308;">
                 <i class="fab fa-wordpress"></i> Import WP
             </a>
-            <a href="/admin/berita/kategori" class="btn" style="background: #64748b;">
+            <a href="/admin/blog/kategori" class="btn" style="background: #64748b;">
                 <i class="fas fa-tags"></i> Kategori
             </a>
-            <a href="/admin/berita/tambah" class="btn">
+            <a href="/admin/blog/tambah" class="btn">
                 <i class="fas fa-plus"></i> Buat Berita
             </a>
         </div>
@@ -26,7 +26,7 @@
     @endif
 
     <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e2e8f0;">
-        <form action="/admin/berita" method="GET" style="display: flex; gap: 15px; align-items: flex-end;">
+        <form action="/admin/blog" method="GET" style="display: flex; gap: 15px; align-items: flex-end;">
             <div style="flex: 1;">
                 <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #64748b; margin-bottom: 5px;">Cari Berita</label>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Judul berita..." style="padding: 8px 12px; font-size: 0.9rem; width: 100%; border: 1px solid #cbd5e1; border-radius: 8px;">
@@ -44,7 +44,7 @@
                 <i class="fas fa-search"></i> Filter
             </button>
             @if(request()->filled('search') || request()->filled('kategori'))
-                <a href="/admin/berita" class="btn" style="background: #94a3b8;">Reset</a>
+                <a href="/admin/blog" class="btn" style="background: #94a3b8;">Reset</a>
             @endif
         </form>
     </div>
@@ -90,7 +90,7 @@
                         </div>
                     </td>
                     <td>
-                        <form action="/admin/berita/quick-kategori/{{ $b->id }}" method="POST" id="form-kat-{{ $b->id }}">
+                        <form action="/admin/blog/quick-kategori/{{ $b->id }}" method="POST" id="form-kat-{{ $b->id }}">
                             @csrf
                             <select name="kategori_ids[]" onchange="document.getElementById('form-kat-{{ $b->id }}').submit()" style="padding: 4px 8px; font-size: 0.8rem; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%; cursor: pointer;">
                                 <option value="">-- Pilih Kategori --</option>
@@ -116,18 +116,18 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <form action="/admin/berita/unggulan/{{ $b->id }}" method="POST">
+                            <form action="/admin/blog/unggulan/{{ $b->id }}" method="POST">
                                 @csrf
                                 <button type="submit" style="background:none; border:none; color:{{ $b->unggulan ? '#f59e0b' : '#cbd5e1' }}; cursor:pointer; padding:0; font-size: 1rem;" title="{{ $b->unggulan ? 'Hapus dari Unggulan' : 'Jadikan Unggulan' }}">
                                     <i class="{{ $b->unggulan ? 'fas' : 'far' }} fa-star"></i>
                                 </button>
                             </form>
                             <button type="button"
-                                onclick="openSlidePanel('/admin/berita/ubah/{{ $b->id }}?panel=1', 'Edit Berita')"
+                                onclick="openSlidePanel('/admin/blog/ubah/{{ $b->id }}?panel=1', 'Edit Berita')"
                                 style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 0; font-size: 1rem;" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <form action="/admin/berita/hapus/{{ $b->id }}" method="POST" onsubmit="return confirm('Hapus berita ini?')">
+                            <form action="/admin/blog/hapus/{{ $b->id }}" method="POST" onsubmit="return confirm('Hapus berita ini?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:0;"><i class="fas fa-trash-alt"></i></button>
                             </form>

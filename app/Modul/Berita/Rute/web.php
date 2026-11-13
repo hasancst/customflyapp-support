@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modul\Berita\Http\Controller\BeritaController;
 use App\Modul\Berita\Http\Controller\KategoriController;
 
-Route::middleware(['web', 'auth'])->prefix('admin/berita')->group(function () {
+Route::middleware(['web', 'auth'])->prefix('admin/blog')->group(function () {
     Route::get('/', [BeritaController::class, 'indeks']);
     Route::get('/tambah', [BeritaController::class, 'tambah']);
     Route::post('/tambah', [BeritaController::class, 'simpan']);

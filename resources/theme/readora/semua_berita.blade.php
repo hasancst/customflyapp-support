@@ -14,7 +14,7 @@
             @foreach($beritaList as $item)
             <div class="portfolio-item">
                 <div class="thumb">
-                    <a href="/berita/{{ $item->slug }}">
+                    <a href="/blog/{{ $item->slug }}">
                         <img src="/storage/{{ $item->gambar }}" alt="{{ $item->judul }}">
                     </a>
                     @if($item->kategoris->isNotEmpty())
@@ -24,7 +24,7 @@
                     @endif
                 </div>
                 <div class="details">
-                    <h3 class="title"><a href="/berita/{{ $item->slug }}">{{ $item->judul }}</a></h3>
+                    <h3 class="title"><a href="/blog/{{ $item->slug }}">{{ $item->judul }}</a></h3>
                     <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;">{{ Str::limit(strip_tags($item->konten), 100) }}</p>
                     <div class="meta">
                          <span><i class="far fa-calendar"></i> {{ \Carbon\Carbon::parse($item->created_at)->format('d M Y') }}</span>
@@ -40,7 +40,7 @@
                 <i class="fas fa-search" style="font-size: 60px; color: var(--border); margin-bottom: 20px; display: block;"></i>
                 <h3>No results found</h3>
                 <p>Try searching with different keywords.</p>
-                <a href="/berita" class="btn" style="margin-top: 20px;">Clear Search</a>
+                <a href="/blog" class="btn" style="margin-top: 20px;">Clear Search</a>
             </div>
         @endif
 

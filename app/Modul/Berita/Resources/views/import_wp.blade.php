@@ -9,7 +9,7 @@
         <p style="color: #64748b; font-size: 0.9rem;">Masukan URL blog WordPress Anda untuk mengimport kategori dan berita secara otomatis melalui REST API.</p>
     </div>
 
-    <form action="/admin/berita/import-wp" method="POST">
+    <form action="/admin/blog/import-wp" method="POST">
         @csrf
         <div style="margin-bottom: 20px;">
             <label style="display: block; font-weight: 600; margin-bottom: 8px;">URL WordPress</label>
@@ -36,7 +36,7 @@
         </div>
 
         <div style="display: flex; gap: 10px;">
-            <a href="/admin/berita" class="btn" style="background: #94a3b8; flex: 1; text-align: center;">Batal</a>
+            <a href="/admin/blog" class="btn" style="background: #94a3b8; flex: 1; text-align: center;">Batal</a>
             <button type="submit" class="btn" style="flex: 2;">
                 <i class="fas fa-download"></i> Mulai Import
             </button>

@@ -12,16 +12,25 @@ Route::post('/keluar', [LoginController::class, 'logout'])->name('logout');
 
 // Public Routes
 Route::get('/', [PublicController::class, 'index']);
-Route::get('/berita', [PublicController::class, 'berita']);
-Route::get('/berita/kategori', function() { return redirect('/berita'); });
-Route::get('/berita/kategori/{slug}', [PublicController::class, 'kategoriBerita']);
-Route::get('/kategori-berita', function() { return redirect('/berita'); });
-Route::get('/kategori-berita/{slug}', [PublicController::class, 'kategoriBerita']);
-Route::get('/kategori-politik/{slug}', function($slug) { return redirect('/kategori-berita/'.$slug); });
-Route::get('/berita/kategori-berita/{slug}', [PublicController::class, 'kategoriBerita']);
-Route::get('/politik', function() { return redirect('/kategori-berita/politik'); });
-Route::get('/berita/{kategori}/{slug}', [PublicController::class, 'detailBerita']);
-Route::get('/berita/{slug}', [PublicController::class, 'detailBeritaSingle']);
+Route::get('/blog', [PublicController::class, 'berita']);
+Route::get('/blog/kategori', function() { return redirect('/blog'); });
+Route::get('/blog/kategori/{slug}', [PublicController::class, 'kategoriBerita']);
+Route::get('/kategori-blog', function() { return redirect('/blog'); });
+Route::get('/kategori-blog/{slug}', [PublicController::class, 'kategoriBerita']);
+Route::get('/blog/{kategori}/{slug}', [PublicController::class, 'detailBerita']);
+Route::get('/blog/{slug}', [PublicController::class, 'detailBeritaSingle']);
+
+// Legacy /berita redirects to /blog
+Route::get('/berita', function() { return redirect('/blog', 301); });
+Route::get('/berita/kategori', function() { return redirect('/blog', 301); });
+Route::get('/berita/kategori/{slug}', function($slug) { return redirect('/blog/kategori/'.$slug, 301); });
+Route::get('/kategori-berita', function() { return redirect('/blog', 301); });
+Route::get('/kategori-berita/{slug}', function($slug) { return redirect('/blog/kategori/'.$slug, 301); });
+Route::get('/kategori-politik/{slug}', function($slug) { return redirect('/blog/kategori/'.$slug, 301); });
+Route::get('/berita/kategori-berita/{slug}', function($slug) { return redirect('/blog/kategori/'.$slug, 301); });
+Route::get('/politik', function() { return redirect('/blog/kategori/politik', 301); });
+Route::get('/berita/{kategori}/{slug}', function($kategori, $slug) { return redirect('/blog/'.$kategori.'/'.$slug, 301); });
+Route::get('/berita/{slug}', function($slug) { return redirect('/blog/'.$slug, 301); });
 Route::get('/tag/{slug}', [PublicController::class, 'tagBerita']);
 Route::get('/artikel', [PublicController::class, 'artikel']);
 Route::get('/artikel/kategori/{slug}', [PublicController::class, 'kategoriArtikel']);

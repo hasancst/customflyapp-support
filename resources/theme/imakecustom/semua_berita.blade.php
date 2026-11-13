@@ -22,13 +22,13 @@
             @forelse($beritaList as $b)
                 <div class="blog-card reveal">
                     <div class="blog-image" style="border-radius: 20px; overflow: hidden; height: 250px; border: 1px solid var(--glass-border);">
-                        <img src="/storage/{{ $b->gambar_utama ?? $b->gambar }}" alt="{{ $b->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="/storage/{{ $b->gambar_utama ?? $b->gambar }}?v={{ $b->updated_at?->timestamp ?? 1 }}" alt="{{ $b->judul }}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div class="blog-info" style="padding-top: 1.5rem;">
                         <span class="blog-date" style="color: var(--secondary); font-size: 0.9rem;">{{ $b->created_at->format('M d, Y') }}</span>
-                        <h3 style="margin-top: 0.5rem; margin-bottom: 1rem;"><a href="/berita/{{ $b->slug }}">{{ $b->judul }}</a></h3>
+                        <h3 style="margin-top: 0.5rem; margin-bottom: 1rem;"><a href="/blog/{{ $b->slug }}">{{ $b->judul }}</a></h3>
                         <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">{{ Str::limit(strip_tags($b->isi), 120) }}</p>
-                        <a href="/berita/{{ $b->slug }}" class="btn-text" style="display: inline-block; margin-top: 1.5rem; color: var(--primary); font-weight: 600;">Read More <i class="fas fa-arrow-right"></i></a>
+                        <a href="/blog/{{ $b->slug }}" class="btn-text" style="display: inline-block; margin-top: 1.5rem; color: var(--primary); font-weight: 600;">Read More <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
             @empty

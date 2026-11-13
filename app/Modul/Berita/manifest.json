@@ -12,6 +12,6 @@
     "menu": {
         "judul": "Berita",
         "ikon": "newspaper",
-        "rute": "/admin/berita"
+        "rute": "/admin/blog"
     }
 }

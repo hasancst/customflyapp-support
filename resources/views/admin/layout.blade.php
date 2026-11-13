@@ -627,16 +627,16 @@
             @endif
             @if(in_array('berita', array_map('strtolower', $modulAktif)))
             <div class="nav-item-group">
-                <a href="#" class="nav-item {{ request()->is('admin/berita*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('berita-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
+                <a href="#" class="nav-item {{ request()->is('admin/blog*') ? 'active' : '' }}" onclick="event.preventDefault(); var sub = document.getElementById('berita-submenu'); var icon = this.querySelector('.arrow-icon'); if(sub.style.display === 'none'){ sub.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { sub.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
                     <i class="fas fa-newspaper"></i>
-                    <span style="flex: 1;">News</span>
-                    <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/berita*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
+                    <span style="flex: 1;">Blog</span>
+                    <i class="fas fa-chevron-down arrow-icon" style="font-size: 0.8rem; transition: transform 0.3s; transform: {{ request()->is('admin/blog*') ? 'rotate(180deg)' : 'rotate(0deg)' }}"></i>
                 </a>
-                <div id="berita-submenu" class="submenu" style="display: {{ request()->is('admin/berita*') ? 'block' : 'none' }}">
-                    <a href="/admin/berita" class="nav-item {{ request()->is('admin/berita') || request()->is('admin/berita/tambah') || request()->is('admin/berita/ubah*') ? 'active' : '' }}">
-                        <i class="fas fa-list"></i> All News
+                <div id="berita-submenu" class="submenu" style="display: {{ request()->is('admin/blog*') ? 'block' : 'none' }}">
+                    <a href="/admin/blog" class="nav-item {{ request()->is('admin/blog') || request()->is('admin/blog/tambah') || request()->is('admin/blog/ubah*') ? 'active' : '' }}">
+                        <i class="fas fa-list"></i> All Blog
                     </a>
-                    <a href="/admin/berita/kategori" class="nav-item {{ request()->is('admin/berita/kategori*') ? 'active' : '' }}">
+                    <a href="/admin/blog/kategori" class="nav-item {{ request()->is('admin/blog/kategori*') ? 'active' : '' }}">
                         <i class="fas fa-folder-open"></i> Categories
                     </a>
                 </div>

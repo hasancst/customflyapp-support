@@ -118,7 +118,7 @@
             </div>
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">URL / Link</label>
-                <input type="text" name="url" id="url-menu" required placeholder="Contoh: /berita">
+                <input type="text" name="url" id="url-menu" required placeholder="Contoh: /blog">
             </div>
 
             <div style="margin-bottom: 20px;">
@@ -331,7 +331,7 @@
         else if (modul === 'berita') {
             katBerita.style.display = 'block';
             const slug = document.getElementById('select-kategori-berita').value;
-            urlInput.value = slug ? '/berita/kategori/' + slug : '/berita';
+            urlInput.value = slug ? '/blog/kategori/' + slug : '/blog';
             labelInput.value = slug ? document.getElementById('select-kategori-berita').selectedOptions[0].text : 'Berita';
         }
         else if (modul === 'artikel') {

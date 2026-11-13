@@ -4,7 +4,7 @@
 
 @section('konten')
 <div class="card">
-    <form action="/admin/berita/tambah" method="POST" enctype="multipart/form-data">
+    <form action="/admin/blog/tambah" method="POST" enctype="multipart/form-data">
         @csrf
         <div style="display: grid; grid-template-columns: 2.5fr 1fr; gap: 30px;">
             <!-- Kolom Utama -->
@@ -89,7 +89,7 @@
                 <div style="margin-bottom: 25px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <label style="font-weight: 600;">Kategori</label>
-                        <a href="/admin/berita/kategori" style="font-size: 0.8rem; color: var(--primary); text-decoration: none;"><i class="fas fa-plus-circle"></i> Kelola</a>
+                        <a href="/admin/blog/kategori" style="font-size: 0.8rem; color: var(--primary); text-decoration: none;"><i class="fas fa-plus-circle"></i> Kelola</a>
                     </div>
                     <div style="max-height: 150px; overflow-y: auto; background: #fff; padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
                         @foreach($kategori as $k)
@@ -120,7 +120,7 @@
                 <button type="submit" class="btn" style="width: 100%; justify-content: center; padding: 15px;">
                     <i class="fas fa-save"></i> Terbitkan Berita
                 </button>
-                <a href="/admin/berita" style="display: block; text-align: center; margin-top: 15px; color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Batal</a>
+                <a href="/admin/blog" style="display: block; text-align: center; margin-top: 15px; color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Batal</a>
             </div>
         </div>
     </form>
@@ -283,7 +283,7 @@
         status.text('Working...');
 
         $.ajax({
-            url: '/admin/berita/ai-bantu',
+            url: '/admin/blog/ai-bantu',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',

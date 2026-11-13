@@ -14,7 +14,7 @@ class KategoriController extends Controller
         $kategori = Kategori::latest()->get();
         
         // Cek kategori mana saja yang sudah ada di menu
-        $menuKategori = Menu::where('url', 'like', '/berita/kategori/%')
+        $menuKategori = Menu::where('url', 'like', '/blog/kategori/%')
             ->get()
             ->groupBy('url');
 
@@ -55,7 +55,7 @@ class KategoriController extends Controller
             'deskripsi' => $request->deskripsi,
         ]);
 
-        return redirect('/admin/berita/kategori')->with('berhasil', 'Kategori berhasil diperbarui.');
+        return redirect('/admin/blog/kategori')->with('berhasil', 'Kategori berhasil diperbarui.');
     }
 
     public function hapus($id)
@@ -74,7 +74,7 @@ class KategoriController extends Controller
 
         Menu::create([
             'label' => $kategori->nama,
-            'url' => '/berita/kategori/' . $kategori->slug,
+            'url' => '/blog/kategori/' . $kategori->slug,
             'posisi' => $posisi,
             'urutan' => $urutan + 1,
             'target' => '_self'
@@ -87,7 +87,7 @@ class KategoriController extends Controller
     {
         $kategori = Kategori::findOrFail($id);
         $posisi = $request->posisi ?? 'header';
-        $url = '/berita/kategori/' . $kategori->slug;
+        $url = '/blog/kategori/' . $kategori->slug;
 
         Menu::where('url', $url)->where('posisi', $posisi)->delete();
 

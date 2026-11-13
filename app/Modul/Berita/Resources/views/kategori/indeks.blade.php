@@ -7,7 +7,7 @@
     <!-- Form Tambah -->
     <div class="card">
         <h3>Tambah Kategori</h3>
-        <form action="/admin/berita/kategori" method="POST">
+        <form action="/admin/blog/kategori" method="POST">
             @csrf
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nama Kategori</label>
@@ -37,7 +37,7 @@
             <tbody>
                 @forelse($kategori as $k)
                 @php
-                    $urlCheck = '/berita/kategori/' . $k->slug;
+                    $urlCheck = '/blog/kategori/' . $k->slug;
                     $statusHeader = false;
                     $statusFooter = false;
                     
@@ -64,7 +64,7 @@
                     <td>
                         <div style="display: flex; gap: 5px;">
                             @if(!$statusHeader)
-                            <form action="/admin/berita/kategori/ke-menu/{{ $k->id }}" method="POST">
+                            <form action="/admin/blog/kategori/ke-menu/{{ $k->id }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="posisi" value="header">
                                 <button type="submit" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: var(--primary);" title="Tambah ke Main Menu">
@@ -72,7 +72,7 @@
                                 </button>
                             </form>
                             @else
-                            <form action="/admin/berita/kategori/dari-menu/{{ $k->id }}" method="POST" onsubmit="return confirm('Hapus dari menu header?')">
+                            <form action="/admin/blog/kategori/dari-menu/{{ $k->id }}" method="POST" onsubmit="return confirm('Hapus dari menu header?')">
                                 @csrf
                                 <input type="hidden" name="posisi" value="header">
                                 <button type="submit" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #ef4444; color: #fff;" title="Hapus dari Menu">
@@ -82,7 +82,7 @@
                             @endif
 
                             @if(!$statusFooter)
-                            <form action="/admin/berita/kategori/ke-menu/{{ $k->id }}" method="POST">
+                            <form action="/admin/blog/kategori/ke-menu/{{ $k->id }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="posisi" value="footer">
                                 <button type="submit" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #64748b;" title="Tambah ke Footer">
@@ -90,7 +90,7 @@
                                 </button>
                             </form>
                             @else
-                            <form action="/admin/berita/kategori/dari-menu/{{ $k->id }}" method="POST" onsubmit="return confirm('Hapus dari menu footer?')">
+                            <form action="/admin/blog/kategori/dari-menu/{{ $k->id }}" method="POST" onsubmit="return confirm('Hapus dari menu footer?')">
                                 @csrf
                                 <input type="hidden" name="posisi" value="footer">
                                 <button type="submit" class="btn" style="padding: 5px 10px; font-size: 0.75rem; background: #ef4444; color: #fff;" title="Hapus dari Footer">
@@ -102,10 +102,10 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 10px;">
-                            <a href="/admin/berita/kategori/ubah/{{ $k->id }}" style="color: var(--primary);">
+                            <a href="/admin/blog/kategori/ubah/{{ $k->id }}" style="color: var(--primary);">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="/admin/berita/kategori/hapus/{{ $k->id }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')">
+                            <form action="/admin/blog/kategori/hapus/{{ $k->id }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:0;">
                                     <i class="fas fa-trash-alt"></i>

@@ -12,7 +12,7 @@
         <nav style="font-size: 0.9rem; margin-bottom: 20px;">
             <a href="/" style="color: rgba(255,255,255,0.8); font-weight: 600;">Beranda</a> 
             <span style="color: rgba(255,255,255,0.4); margin: 0 15px;">/</span>
-            <a href="/berita" style="color: rgba(255,255,255,0.8); font-weight: 600;">Berita</a>
+            <a href="/blog" style="color: rgba(255,255,255,0.8); font-weight: 600;">Berita</a>
             <span style="color: rgba(255,255,255,0.4); margin: 0 15px;">/</span>
             <span style="color: #fff; font-weight: 700;">{{ $kategori->nama }}</span>
         </nav>
@@ -34,7 +34,7 @@
         <nav style="font-size: 0.9rem; margin-bottom: 20px;">
             <a href="/" style="color: rgba(255,255,255,0.8); font-weight: 600;">Beranda</a> 
             <span style="color: rgba(255,255,255,0.4); margin: 0 15px;">/</span>
-            <a href="/berita" style="color: rgba(255,255,255,0.8); font-weight: 600;">Berita</a>
+            <a href="/blog" style="color: rgba(255,255,255,0.8); font-weight: 600;">Berita</a>
             <span style="color: rgba(255,255,255,0.4); margin: 0 15px;">/</span>
             <span style="color: #fff; font-weight: 700;">Tag</span>
         </nav>
@@ -76,7 +76,7 @@
                             {{ $featured->kategoris->first()->nama ?? 'BERITA' }}
                         </div>
                         <h2 style="font-size: 2.2rem; line-height: 1.2; margin-bottom: 20px; font-weight: 800;">
-                            <a href="/berita/{{ $featured->kategoris->first()->slug ?? 'umum' }}/{{ $featured->slug }}" style="color: var(--text-main); text-decoration: none;">{{ $featured->judul }}</a>
+                            <a href="/blog/{{ $featured->kategoris->first()->slug ?? 'umum' }}/{{ $featured->slug }}" style="color: var(--text-main); text-decoration: none;">{{ $featured->judul }}</a>
                         </h2>
                         <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 25px; font-size: 1.05rem;">
                             {{ Str::limit($featured->ringkasan, 150) }}
@@ -97,17 +97,17 @@
                 @foreach($beritaList as $item)
                     <article class="premium-card">
                         <div class="card-image-box">
-                            <a href="/berita/{{ $item->kategoris->first()->slug ?? 'umum' }}/{{ $item->slug }}">
+                            <a href="/blog/{{ $item->kategoris->first()->slug ?? 'umum' }}/{{ $item->slug }}">
                                 <img src="{{ $item->gambar_utama ? (str_starts_with($item->gambar_utama, 'http') ? $item->gambar_utama : asset('storage/' . $item->gambar_utama)) : asset('theme/pinterhukum/img/default.jpg') }}" alt="{{ $item->judul }}">
                             </a>
                         </div>
                         <div class="card-body-box">
                             <div class="tag-meta">{{ $item->created_at->format('d M Y') }}</div>
-                            <h3 class="card-title-box"><a href="/berita/{{ $item->kategoris->first()->slug ?? 'umum' }}/{{ $item->slug }}">{{ $item->judul }}</a></h3>
+                            <h3 class="card-title-box"><a href="/blog/{{ $item->kategoris->first()->slug ?? 'umum' }}/{{ $item->slug }}">{{ $item->judul }}</a></h3>
                             <p class="card-excerpt-box">{{ Str::limit($item->ringkasan, 100) }}</p>
                             <div class="card-footer-box">
                                 <span><i class="far fa-user"></i> {{ $item->penulis->nama ?? 'Admin' }}</span>
-                                <a href="/berita/{{ $item->kategoris->first()->slug ?? 'umum' }}/{{ $item->slug }}" class="read-more-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
+                                <a href="/blog/{{ $item->kategoris->first()->slug ?? 'umum' }}/{{ $item->slug }}" class="read-more-link">Baca Selengkapnya <i class="fas fa-arrow-right"></i></a>
                             </div>
                         </div>
                     </article>
@@ -126,7 +126,7 @@
                 <p style="color: #64748b; font-size: 1.1rem; max-width: 500px; margin: 0 auto 30px; line-height: 1.6;">
                     {{ isset($cari) ? "Maaf, kami tidak dapat menemukan berita yang cocok dengan kata kunci \"$cari\". Silakan coba menggunakan kata kunci lain." : "Sepertinya belum ada berita yang diterbitkan di kategori ini. Silakan kembali lagi nanti." }}
                 </p>
-                <a href="/berita" class="btn-premium" style="display: inline-block; padding: 15px 35px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.3s; box-shadow: 0 10px 20px rgba(78, 115, 223, 0.2);">
+                <a href="/blog" class="btn-premium" style="display: inline-block; padding: 15px 35px; background: var(--primary); color: #fff; text-decoration: none; border-radius: 50px; font-weight: 700; transition: all 0.3s; box-shadow: 0 10px 20px rgba(78, 115, 223, 0.2);">
                     Lihat Semua Berita
                 </a>
             </div>
@@ -145,7 +145,7 @@
                              style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <div>
-                        <a href="/berita/{{ $top->kategoris->first()->slug ?? 'umum' }}/{{ $top->slug }}" style="text-decoration: none; color: var(--text-main); font-size: 0.9rem; font-weight: 700; line-height: 1.3; display: block; margin-bottom: 3px;">{{ Str::limit($top->judul, 45) }}</a>
+                        <a href="/blog/{{ $top->kategoris->first()->slug ?? 'umum' }}/{{ $top->slug }}" style="text-decoration: none; color: var(--text-main); font-size: 0.9rem; font-weight: 700; line-height: 1.3; display: block; margin-bottom: 3px;">{{ Str::limit($top->judul, 45) }}</a>
                         <small style="color: var(--text-muted); font-size: 0.75rem;">{{ $top->created_at->format('d M Y') }}</small>
                     </div>
                 </li>

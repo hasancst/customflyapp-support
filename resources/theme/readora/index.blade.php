@@ -251,7 +251,7 @@
                             <h1>{{ $slide->judul }}</h1>
                             <p>{{ $slide->deskripsi }}</p>
                             <div style="display: flex; gap: 20px;">
-                                <a href="{{ $slide->url ?? '/berita' }}" class="btn-cmn">Explore Now</a>
+                                <a href="{{ $slide->url ?? '/blog' }}" class="btn-cmn">Explore Now</a>
                                 <a href="/kontak" class="btn-cmn btn-outline" style="border-color: #fff; color: #fff;">Let's Talk</a>
                             </div>
                         </div>
@@ -292,7 +292,7 @@
                 <h1>Building Digital Experiences That Matter.</h1>
                 <p>We are a boutique studio specializing in high-end design and innovative web development for forward-thinking brands.</p>
                 <div style="display: flex; gap: 20px;">
-                    <a href="/berita" class="btn-cmn">View Projects</a>
+                    <a href="/blog" class="btn-cmn">View Projects</a>
                     <a href="/kontak" class="btn-cmn btn-outline" style="border-color: #fff; color: #fff;">Let's Talk</a>
                 </div>
             </div>

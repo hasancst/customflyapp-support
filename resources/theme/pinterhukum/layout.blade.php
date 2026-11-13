@@ -614,7 +614,7 @@
             <i class="fas fa-times"></i>
         </div>
         <div class="search-container">
-            <form action="/berita" method="GET">
+            <form action="/blog" method="GET">
                 <div class="search-input-group">
                     <input type="text" name="cari" placeholder="Ketik kata kunci pencarian..." autocomplete="off" autofocus>
                 </div>

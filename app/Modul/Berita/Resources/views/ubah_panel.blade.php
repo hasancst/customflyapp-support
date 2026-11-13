@@ -1,4 +1,4 @@
-<form id="panel-edit-form-berita" action="/admin/berita/ubah/{{ $berita->id }}" method="POST" enctype="multipart/form-data" data-panel-form>
+<form id="panel-edit-form-berita" action="/admin/blog/ubah/{{ $berita->id }}" method="POST" enctype="multipart/form-data" data-panel-form>
     @csrf
     <input type="hidden" name="panel" value="1">
 
@@ -215,7 +215,7 @@
         status.text('Working...');
 
         $.ajax({
-            url: '/admin/berita/ai-bantu',
+            url: '/admin/blog/ai-bantu',
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',

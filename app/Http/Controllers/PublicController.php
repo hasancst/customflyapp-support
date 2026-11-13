@@ -38,10 +38,10 @@ class PublicController extends Controller
 
         // 3. Berita Populer Bulan Ini (untuk Slider)
         $popularStats = DB::table('stat_pengunjung')
-            ->select(DB::raw("substring(url from 'berita/[^/]+/([^/?]+)') as slug"), DB::raw('count(*) as views'))
+            ->select(DB::raw("substring(url from 'blog/([^/?]+)') as slug"), DB::raw('count(*) as views'))
             ->where('tanggal', '>=', now()->startOfMonth())
-            ->where('url', 'LIKE', '%/berita/%')
-            ->groupBy(DB::raw("substring(url from 'berita/[^/]+/([^/?]+)')"))
+            ->where('url', 'LIKE', '%/blog/%')
+            ->groupBy(DB::raw("substring(url from 'blog/([^/?]+)')"))
             ->orderByDesc('views')
             ->limit(10)
             ->get();

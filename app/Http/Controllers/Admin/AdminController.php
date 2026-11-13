@@ -42,7 +42,10 @@ class AdminController extends Controller
         try {
             $popularPages = DB::table('stat_pengunjung')
                 ->select('url', DB::raw('count(*) as total'))
-                ->where('url', 'like', '%/berita/%')
+                ->where(function($q) {
+                    $q->where('url', 'like', '%/blog/%')
+                      ->orWhere('url', 'like', '%/berita/%');
+                })
                 ->where('url', 'not like', '%.png%')
                 ->where('url', 'not like', '%.jpg%')
                 ->where('url', 'not like', '%.jpeg%')
